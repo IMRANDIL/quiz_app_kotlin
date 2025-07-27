@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.quizapp.Dashboard.components.Banner
+import com.example.quizapp.Dashboard.components.BottomNavigationBar
 import com.example.quizapp.Dashboard.components.CategoryGrid
 import com.example.quizapp.Dashboard.components.CategoryHeader
 import com.example.quizapp.Dashboard.components.GameMadeButtons
@@ -24,7 +27,8 @@ import com.example.quizapp.R
 @Composable
 @Preview
 fun MainScreen(
-    onSinglePlayerClick: () -> Unit = {}
+    onSinglePlayerClick: () -> Unit = {},
+    onBoardClick: () -> Unit = {},
 ){
     val scrollState = rememberScrollState()
 
@@ -43,6 +47,13 @@ fun MainScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 CategoryHeader()
                 CategoryGrid()
+                Banner()
             }
+        BottomNavigationBar(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            onItemSelected = { itemId ->
+                if(itemId == R.id.Board) onBoardClick()
+            }
+        )
     }
 }
