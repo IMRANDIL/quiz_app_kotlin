@@ -5,11 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +28,43 @@ import com.example.quizapp.R
 
 
 @Composable
-fun GameMadeButtons(){
+@Preview
+fun GameMadeButtons(onSinglePlayerClick: () -> Unit={}){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .height(height = 145.dp)
+        ,
+       horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+    GameButton(backgroundColor = R.color.blue,
+        iconRes = R.drawable.btn1,
+        text = "Create Quiz",
+        onClick = onSinglePlayerClick,
+        modifier = Modifier.weight(1f)
+    )
+    Spacer(modifier = Modifier.width(12.dp))
+        GameButton(backgroundColor = R.color.purple,
+            iconRes = R.drawable.btn2,
+            text = "Single Player",
+            onClick = onSinglePlayerClick,
+            modifier = Modifier.weight(1f)
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        GameButton(backgroundColor = R.color.orange,
+            iconRes = R.drawable.btn3,
+            text = "Multi Player",
+            onClick = onSinglePlayerClick,
+            modifier = Modifier.weight(1f)
+        )
+
+
+
+    }
+
 
 }
 
@@ -77,7 +115,7 @@ fun GameButton(
     }
 }
 
-@Preview
+//@Preview
 @Composable
 fun GameButtonPreview() {
     GameButton(
