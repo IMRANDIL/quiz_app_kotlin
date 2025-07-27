@@ -1,0 +1,160 @@
+package com.example.quizapp.Question
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.quizapp.Question.Model.QuestionModel
+import com.example.quizapp.Question.Model.QuestionUiState
+import com.example.quizapp.R
+
+@Composable
+fun QuestionScreen(
+    questions: List<QuestionModel>,
+    onFinish: (finalScore: Int) -> Unit = {},
+    onBackClick: () -> Unit = {},
+
+) {
+    var state by remember {
+        mutableStateOf(
+            value = QuestionUiState(questions = questions)
+        )
+
+    }
+
+    val currentQuestion = state.questions[state.currentIndex]
+    var selectedAnswer = currentQuestion.clickedAnswer
+    val context = LocalContext.current
+    val imageResId = remember(currentQuestion.pickPath) {
+            context.resources.getIdentifier(
+                currentQuestion.pickPath?:"",
+                "drawable",
+                context.packageName
+            )
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = colorResource(id = R.color.grey))
+    ) {
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all=24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                IconButton(onClick = {onBackClick}){
+                    Icon(
+                        painter = painterResource(id = R.drawable.back),
+                        contentDescription = "Back"
+                    )
+                }
+                Spacer(modifier = Modifier.width(width = 16.dp))
+                Text(
+                    text = "Single Player",
+                    fontSize = 20.sp,
+                    color = colorResource(id = R.color.navy_blue),
+                    fontWeight = FontWeight.Bold
+
+                )
+            }
+        }
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(
+                    text = "Question ${state.currentIndex+1}/${state.questions.size}",
+                    fontSize = 20.sp,
+//                    color = colorResource(id = R.color.navy_blue),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
+
+                )
+
+                IconButton(
+                    onClick = {
+                        if(state.currentIndex>0) {
+                            selectedAnswer = null
+                            state = state.copy(currentIndex = state.currentIndex - 1)
+
+                        }
+                    }
+                ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.left_arrow),
+                            contentDescription = "left arrow"
+
+                        )
+                }
+
+                IconButton(
+                    onClick = {
+                        if(state.currentIndex==state.questions.size-1) {
+                            onFinish(state.score)
+
+                        }
+                        else {
+                            selectedAnswer = null
+                            state = state.copy(currentIndex = state.currentIndex - 1)
+
+                        }
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.right_arrow),
+                        contentDescription = "left arrow"
+
+                    )
+                }
+            }
+        }
+    }
+
+}
+
+@Preview
+@Composable
+fun QuestionScreenPreview() {
+    val questions = listOf(
+        QuestionModel(
+            id = 1,
+            question = "What is the capital of France?",
+            answer_1 = "Paris",
+            answer_2 = "London",
+            answer_3 = "Berlin",
+            answer_4 = "Madrid",
+            correct_answer = "Paris",
+            score = 10,
+            pickPath = null,
+            clickedAnswer = null
+        )
+    )
+    QuestionScreen(questions = questions)
+}
