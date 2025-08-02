@@ -1,5 +1,6 @@
 package com.example.quizapp.Question
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -11,6 +12,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.quizapp.Question.Model.QuestionModel
 import com.example.quizapp.R
+import com.example.quizapp.Score.ScoreActivity
 
 class QuestionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +24,12 @@ class QuestionActivity : AppCompatActivity() {
         setContent { QuestionScreen(
             questions = receivedList,
             onBackClick = {finish()},
-            onFinish = {}
+            onFinish = {
+                val intent = Intent(this, ScoreActivity::class.java)
+                intent.putExtra("score", it)
+                startActivity(intent)
+                finish()
+            }
         )}
     }
 }

@@ -17,6 +17,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +39,7 @@ import com.example.quizapp.Question.Model.QuestionModel
 import com.example.quizapp.Question.Model.QuestionUiState
 import com.example.quizapp.Question.components.AnswerItem
 import com.example.quizapp.R
+import kotlinx.coroutines.delay
 
 @Composable
 fun QuestionScreen(
@@ -109,6 +111,10 @@ fun QuestionScreen(
                     modifier = Modifier.weight(1f)
                 )
 
+                // ✅ NAVIGATION BUTTONS - Manual navigation (optional)
+                // Uncomment below if you want manual navigation instead of auto-advance
+
+                /*
                 // ✅ Check if current question is answered
                 val isCurrentQuestionAnswered = currentQuestion.clickedAnswer != null
 
@@ -120,7 +126,7 @@ fun QuestionScreen(
                             // selectedAnswer will be updated automatically by remember(state.currentIndex)
                         }
                     },
-                    enabled = state.currentIndex > 0 && isCurrentQuestionAnswered // ✅ Disable if can't go back
+                    enabled = state.currentIndex > 0 && isCurrentQuestionAnswered
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.left_arrow),
@@ -128,7 +134,7 @@ fun QuestionScreen(
                         tint = if (state.currentIndex > 0 && isCurrentQuestionAnswered)
                             colorResource(id = R.color.navy_blue)
                         else
-                            Color.Gray // ✅ Gray out when disabled
+                            Color.Gray
                     )
                 }
 
@@ -148,7 +154,7 @@ fun QuestionScreen(
                             }
                         }
                     },
-                    enabled = isCurrentQuestionAnswered // ✅ Disable if question not answered
+                    enabled = isCurrentQuestionAnswered
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.right_arrow),
@@ -156,9 +162,10 @@ fun QuestionScreen(
                         tint = if (isCurrentQuestionAnswered)
                             colorResource(id = R.color.navy_blue)
                         else
-                            Color.Gray // ✅ Gray out when disabled
+                            Color.Gray
                     )
                 }
+                */
             }
         }
 
@@ -219,20 +226,38 @@ fun QuestionScreen(
                 isWrong = isWrong,
                 isSelected = selectedAnswer != null
             ) {
-                // ✅ Fix: Update the question's clicked answer without changing total score
-                val updatedQuestions = state.questions.toMutableList()
-                updatedQuestions[state.currentIndex] = updatedQuestions[state.currentIndex].copy(
-                    clickedAnswer = answerLetter
-                )
+                // ✅ Only allow selection if no answer is selected yet
+                if (selectedAnswer == null) {
+                    // ✅ Update the question's clicked answer
+                    val updatedQuestions = state.questions.toMutableList()
+                    updatedQuestions[state.currentIndex] = updatedQuestions[state.currentIndex].copy(
+                        clickedAnswer = answerLetter
+                    )
 
-                selectedAnswer = answerLetter
-                state = state.copy(questions = updatedQuestions)
-                // Note: We don't update score here anymore - calculate it at the end
+                    selectedAnswer = answerLetter
+                    state = state.copy(questions = updatedQuestions)
+                }
             }
         }
 
         item {
             Spacer(Modifier.height(32.dp))
+        }
+    }
+
+    // ✅ Auto-advance effect - triggers when an answer is selected
+    LaunchedEffect(selectedAnswer) {
+        if (selectedAnswer != null) {
+            delay(400) // Wait 2 seconds to show correct/wrong answer
+
+            if (state.currentIndex == state.questions.size - 1) {
+                // Last question - finish quiz
+                val finalScore = calculateFinalScore(state.questions)
+                onFinish(finalScore)
+            } else {
+                // Move to next question
+                state = state.copy(currentIndex = state.currentIndex + 1)
+            }
         }
     }
 }
