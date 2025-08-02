@@ -1,7 +1,7 @@
 package com.example.quizapp.Question.Model
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize  // ✅ fixed
 
 
 @Parcelize

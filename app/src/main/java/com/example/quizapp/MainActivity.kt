@@ -1,36 +1,8 @@
-//package com.example.quizapp
-//
-//import android.os.Bundle
-//import androidx.activity.ComponentActivity
-//import androidx.activity.compose.setContent
-//import androidx.activity.enableEdgeToEdge
-//import androidx.compose.foundation.layout.fillMaxSize
-//import androidx.compose.foundation.layout.padding
-//import androidx.compose.material3.Scaffold
-//import androidx.compose.runtime.Composable
-//import androidx.compose.ui.Modifier
-//import com.example.quizapp.Dashboard.screens.MainScreen
-//import com.example.quizapp.ui.theme.QuizAppTheme
-//
-//class MainActivity : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-////        enableEdgeToEdge()
-//        setContent {
-//            QuizAppTheme {
-//                Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
-//                    MainScreen()
-//                }
-//            }
-//        }
-//    }
-//}
-
-
 package com.example.quizapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -39,9 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 import com.example.quizapp.Dashboard.screens.MainScreen
 import com.example.quizapp.Question.Model.QuestionModel
 import com.example.quizapp.Question.QuestionActivity
@@ -52,13 +22,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         window.statusBarColor = ContextCompat.getColor(this, R.color.grey)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+
+        // ✅ Add logging to confirm this is the real MainActivity
+        Log.d("MainActivity", "Real MainActivity started!")
+
         setContent {
             QuizApp(questionList())
         }
     }
 
     private fun questionList(): List<QuestionModel> {
-        return listOf(
+        val questions = listOf(
             QuestionModel(
                 1,
                 "Which planet is the largest planet in the solar system?",
@@ -180,10 +154,12 @@ class MainActivity : ComponentActivity() {
                 null
             )
         )
+
+        Log.d("MainActivity", "Created ${questions.size} questions")
+        return questions
     }
 }
 
-// ✅ Reusable Composable Function
 @Composable
 fun QuizApp(questionList: List<QuestionModel>) {
     val context = LocalContext.current
@@ -191,10 +167,9 @@ fun QuizApp(questionList: List<QuestionModel>) {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { paddingValues ->
-            // If MainScreen needs paddingValues, pass it
             MainScreen(
                 onSinglePlayerClick = {
-                    // Handle single player click
+                    Log.d("MainActivity", "Starting QuestionActivity with ${questionList.size} questions")
                     val intent = Intent(context, QuestionActivity::class.java)
                     intent.putParcelableArrayListExtra("questions", ArrayList(questionList))
                     context.startActivity(intent)
@@ -207,24 +182,9 @@ fun QuizApp(questionList: List<QuestionModel>) {
     }
 }
 
-// ✅ Preview for Android Studio
-@Preview()
-@Composable
-fun QuizAppPreview() {
-    QuizApp(
-        questionList = listOf(
-            QuestionModel(
-                id = 1,
-                question = "What is the capital of France?",
-                answer_1 = "Paris",
-                answer_2 = "London",
-                answer_3 = "Berlin",
-                answer_4 = "Madrid",
-                correct_answer = "Paris",
-                score = 10,
-                pickPath = "q_1",
-                clickedAnswer = null
-            )
-        )
-    )
-}
+// ✅ REMOVE OR COMMENT OUT THE PREVIEW TO AVOID CONFUSION
+// @Preview()
+// @Composable
+// fun QuizAppPreview() {
+//     // Preview code removed to avoid confusion
+// }
