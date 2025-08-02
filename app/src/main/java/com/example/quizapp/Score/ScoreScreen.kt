@@ -100,7 +100,7 @@ fun ScoreScreen(
     }
 
     // Calculate performance
-    val percentage = (score.toFloat() / (totalQuestions * 10)) * 100 // Assuming 10 points per question
+    val percentage = (score.toFloat() / (totalQuestions * 5)) * 100 // Assuming 10 points per question
     val performanceMessage = when {
         percentage >= 90 -> "🎉 EXCELLENT!"
         percentage >= 70 -> "🌟 GREAT JOB!"
@@ -210,7 +210,7 @@ fun ScoreScreen(
                     )
 
                     Text(
-                        text = "out of ${totalQuestions * 10}",
+                        text = "out of ${totalQuestions * 5}",
                         color = Color.Gray,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Normal

@@ -19,17 +19,22 @@ class QuestionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         window.statusBarColor = ContextCompat.getColor(this, R.color.grey)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-        val receivedList = intent.getParcelableArrayListExtra<QuestionModel>("questions")?:arrayListOf()
+
+        val receivedList = intent.getParcelableArrayListExtra<QuestionModel>("questions") ?: arrayListOf()
         Log.d("QuestionActivity", "Received ${receivedList.size} questions")
-        setContent { QuestionScreen(
-            questions = receivedList,
-            onBackClick = {finish()},
-            onFinish = {
-                val intent = Intent(this, ScoreActivity::class.java)
-                intent.putExtra("score", it)
-                startActivity(intent)
-                finish()
-            }
-        )}
+
+        setContent {
+            QuestionScreen(
+                questions = receivedList,
+                onBackClick = { finish() },
+                onFinish = { finalScore ->
+                    val intent = Intent(this, ScoreActivity::class.java)
+                    intent.putExtra("score", finalScore)
+                    intent.putExtra("totalQuestions", receivedList.size) // ✅ Add this line
+                    startActivity(intent)
+                    finish()
+                }
+            )
+        }
     }
 }

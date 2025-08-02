@@ -2,6 +2,7 @@ package com.example.quizapp.Score
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,13 +20,16 @@ class ScoreActivity : AppCompatActivity() {
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 
         val score = intent.getIntExtra("score", 0)
-
+        val totalQuestions = intent.getIntExtra("totalQuestions", 10) // Add this line
+        Log.d("ScoreActivity", "Received score: $score, totalQuestions: $totalQuestions")
         setContent {
-            ScoreScreen(score) {
+            ScoreScreen(
+                score = score,
+                totalQuestions = totalQuestions // Pass total questions
+            ) {
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
             }
         }
-
     }
 }
