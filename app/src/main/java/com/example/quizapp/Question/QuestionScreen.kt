@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quizapp.Question.Model.QuestionModel
 import com.example.quizapp.Question.Model.QuestionUiState
+import com.example.quizapp.Question.components.AnswerItem
 import com.example.quizapp.R
 
 @Composable
@@ -198,6 +199,24 @@ fun QuestionScreen(
             val answerLetter = listOf("a", "b", "c","d")[index]
             val isCorrect = selectedAnswer!=null && answerLetter==currentQuestion.correct_answer
             val isWrong = selectedAnswer==answerLetter && !isCorrect
+
+            AnswerItem(
+                text = answer,
+                isCorrect = isCorrect,
+                isWrong = isWrong,
+                isSelected = selectedAnswer!=null
+
+            ){
+                val updatedQuestion = state.questions.toMutableList()
+                val updatedCurrentQuestion = updatedQuestion[state.currentIndex].copy(clickedAnswer = answerLetter)
+                updatedQuestion[state.currentIndex] = updatedCurrentQuestion
+                val scoreToAdd = if(answerLetter==updatedCurrentQuestion.correct_answer) 5 else 0
+                state = state.copy(
+                    questions = updatedQuestion,
+                    score = state.score+scoreToAdd
+
+                )
+            }
         }
     }
 
