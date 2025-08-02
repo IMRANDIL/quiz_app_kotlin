@@ -132,7 +132,7 @@ fun QuestionScreen(
                         }
                         else {
                             selectedAnswer = null
-                            state = state.copy(currentIndex = state.currentIndex - 1)
+                            state = state.copy(currentIndex = state.currentIndex + 1)
 
                         }
                     }
@@ -217,6 +217,12 @@ fun QuestionScreen(
 
                 )
             }
+        }
+
+        item {
+            Spacer(
+                Modifier.height(32.dp)
+            )
         }
     }
 
