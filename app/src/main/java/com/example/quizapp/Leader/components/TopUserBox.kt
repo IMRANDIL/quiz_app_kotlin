@@ -174,7 +174,7 @@ fun TopThreeSection(
         TopUserBox(
             user = users[1],
             rank = 2,
-            color = "#bfbfc0",
+            color = "#bfbfc1",
             sizeDp = 100
         )
         Spacer(modifier = Modifier.width(16.dp))

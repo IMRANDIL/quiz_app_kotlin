@@ -32,7 +32,7 @@ class LeaderActivity : AppCompatActivity() {
     private fun loadData():List<UserModel> {
         return listOf(
             UserModel(id = 1, name = "John Doe", pic = "person1", score = 1000),
-            UserModel(id = 2, name = "Jane Smith", pic = "person2", score = 950),
+            UserModel(id = 2, name = "Jane Smith", pic = "person2", score = 990),
             UserModel(id = 3, name = "Alice Johnson", pic = "person3", score = 950),
             UserModel(id = 4, name = "Bob Brown", pic = "person4", score = 845),
             UserModel(id = 5, name = "Eve White", pic = "person5", score = 807),
