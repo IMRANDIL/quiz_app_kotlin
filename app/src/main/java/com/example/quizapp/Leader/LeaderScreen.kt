@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.quizapp.Leader.Model.UserModel
+import com.example.quizapp.Leader.components.LeaderRow
 import com.example.quizapp.Leader.components.OnBackRow
 import com.example.quizapp.Leader.components.TopThreeSection
 import com.example.quizapp.R
@@ -41,6 +43,13 @@ fun LeaderScreen(
 
         }
 
+        itemsIndexed(
+            otherUsers
+        ) {
+                index, user ->
+            LeaderRow(user = user, rank = index + 4)
+        }
+
     }
 }
 
@@ -49,11 +58,13 @@ fun LeaderScreen(
 fun LeaderScreenPreview() {
     val topUsers = listOf(
         UserModel(id = 1, name = "John Doe", pic = "person1", score = 100),
-        UserModel(id = 2, name = "Jane Smith", pic = "person3", score = 90)
+        UserModel(id = 2, name = "Jane Smith", pic = "person3", score = 90),
+        UserModel(id = 6, name = "Alice Lulua", pic = "person7", score = 80)
     )
     val otherUsers = listOf(
         UserModel(id = 3, name = "Alice Johnson", pic = "person4", score = 80),
-        UserModel(id = 4, name = "Bob Williams", pic = "person5", score = 70)
+        UserModel(id = 4, name = "Bob Williams", pic = "person5", score = 70),
+        UserModel(id = 5, name = "Charlie Brown", pic = "person6", score = 60)
     )
     LeaderScreen(
         topUsers = topUsers,

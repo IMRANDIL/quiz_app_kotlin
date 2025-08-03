@@ -37,6 +37,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.quizapp.Leader.Model.UserModel
 import com.example.quizapp.R
+import com.example.quizapp.Utils.getDrawableId
 
 
 @Composable
@@ -213,11 +214,7 @@ fun TopThreeSectionPreview() {
 
 
 
-@Composable
-fun getDrawableId(name:String):Int{
-    val context = LocalContext.current
-    return context.resources.getIdentifier(name, "drawable", context.packageName)
-}
+
 
 
 @Preview
