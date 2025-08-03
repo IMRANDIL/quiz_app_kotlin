@@ -55,7 +55,7 @@ fun TopUserBox(
         verticalArrangement = Arrangement.Bottom
     ) {
         ConstraintLayout(
-            modifier = Modifier.height(200.dp)
+            modifier = Modifier.height(230.dp)
                 .width(sizeDp.dp)
         ) {
             val (imgRef, badgeRef, cronRef) = createRefs()
