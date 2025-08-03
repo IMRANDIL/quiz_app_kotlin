@@ -16,6 +16,7 @@ import com.example.quizapp.Dashboard.screens.MainScreen
 import com.example.quizapp.Leader.LeaderActivity
 import com.example.quizapp.Question.Model.QuestionModel
 import com.example.quizapp.Question.QuestionActivity
+import com.example.quizapp.Quiz.CreateQuizActivity
 import com.example.quizapp.ui.theme.QuizAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,7 +25,6 @@ class MainActivity : ComponentActivity() {
         window.statusBarColor = ContextCompat.getColor(this, R.color.grey)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 
-        // ✅ Add logging to confirm this is the real MainActivity
         Log.d("MainActivity", "Real MainActivity started!")
 
         setContent {
@@ -169,14 +169,22 @@ fun QuizApp(questionList: List<QuestionModel>) {
             modifier = Modifier.fillMaxSize()
         ) { paddingValues ->
             MainScreen(
+                onCreateQuizClick = {
+                    Log.d("MainActivity", "Starting CreateQuizActivity")
+                    val intent = Intent(context, CreateQuizActivity::class.java)
+                    context.startActivity(intent)
+                },
                 onSinglePlayerClick = {
                     Log.d("MainActivity", "Starting QuestionActivity with ${questionList.size} questions")
                     val intent = Intent(context, QuestionActivity::class.java)
                     intent.putParcelableArrayListExtra("questions", ArrayList(questionList))
                     context.startActivity(intent)
                 },
+                onMultiPlayerClick = {
+                    // Handle multiplayer click - you can implement this later
+                    Log.d("MainActivity", "Multiplayer clicked - not implemented yet")
+                },
                 onBoardClick = {
-                    // Handle board click
                     val intent = Intent(context, LeaderActivity::class.java)
                     context.startActivity(intent)
                 }
@@ -184,10 +192,3 @@ fun QuizApp(questionList: List<QuestionModel>) {
         }
     }
 }
-
-// ✅ REMOVE OR COMMENT OUT THE PREVIEW TO AVOID CONFUSION
-// @Preview()
-// @Composable
-// fun QuizAppPreview() {
-//     // Preview code removed to avoid confusion
-// }

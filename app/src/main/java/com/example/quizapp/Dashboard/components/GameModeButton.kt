@@ -24,28 +24,31 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.quizapp.R
 
-
-
-
 @Composable
 @Preview
-fun GameMadeButtons(onSinglePlayerClick: () -> Unit={}){
+fun GameMadeButtons(
+    onCreateQuizClick: () -> Unit = {},
+    onSinglePlayerClick: () -> Unit = {},
+    onMultiPlayerClick: () -> Unit = {}
+){
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
-            .height(height = 145.dp)
-        ,
-       horizontalArrangement = Arrangement.SpaceBetween,
+            .height(height = 145.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-    GameButton(backgroundColor = R.color.blue,
-        iconRes = R.drawable.btn1,
-        text = "Create Quiz",
-        onClick = onSinglePlayerClick,
-        modifier = Modifier.weight(1f)
-    )
-    Spacer(modifier = Modifier.width(12.dp))
-        GameButton(backgroundColor = R.color.purple,
+        GameButton(
+            backgroundColor = R.color.blue,
+            iconRes = R.drawable.btn1,
+            text = "Create Quiz",
+            onClick = onCreateQuizClick,
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+
+        GameButton(
+            backgroundColor = R.color.purple,
             iconRes = R.drawable.btn2,
             text = "Single Player",
             onClick = onSinglePlayerClick,
@@ -54,38 +57,22 @@ fun GameMadeButtons(onSinglePlayerClick: () -> Unit={}){
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        GameButton(backgroundColor = R.color.orange,
+        GameButton(
+            backgroundColor = R.color.orange,
             iconRes = R.drawable.btn3,
             text = "Multi Player",
-            onClick = onSinglePlayerClick,
+            onClick = onMultiPlayerClick,
             modifier = Modifier.weight(1f)
         )
-
-
-
     }
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 @Composable
 fun GameButton(
-    backgroundColor:Int,
-    iconRes:Int,
-    text:String,
-    onClick:(() -> Unit)? = null,
+    backgroundColor: Int,
+    iconRes: Int,
+    text: String,
+    onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ){
     Column(
@@ -93,29 +80,27 @@ fun GameButton(
             .fillMaxHeight()
             .clickable(enabled = onClick != null, onClick = onClick ?: {})
             .clip(shape = RoundedCornerShape(10.dp))
-            .background(color = colorResource(id=backgroundColor))
+            .background(color = colorResource(id = backgroundColor))
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
-    Image(painter = painterResource(id = iconRes),
-        contentDescription = null,
-        modifier = Modifier.fillMaxWidth()
-            .height(60.dp)
+        Image(
+            painter = painterResource(id = iconRes),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
-    Text(
-        text = text,
-        color = colorResource(id = R.color.white),
-
-    )
-
+        Text(
+            text = text,
+            color = colorResource(id = R.color.white),
+        )
     }
 }
 
-//@Preview
 @Composable
 fun GameButtonPreview() {
     GameButton(

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -23,11 +22,12 @@ import com.example.quizapp.Dashboard.components.GameMadeButtons
 import com.example.quizapp.Dashboard.components.TopUserSection
 import com.example.quizapp.R
 
-
 @Composable
 @Preview
 fun MainScreen(
+    onCreateQuizClick: () -> Unit = {},
     onSinglePlayerClick: () -> Unit = {},
+    onMultiPlayerClick: () -> Unit = {},
     onBoardClick: () -> Unit = {},
 ){
     val scrollState = rememberScrollState()
@@ -37,18 +37,22 @@ fun MainScreen(
             .fillMaxSize()
             .background(color = colorResource(id = R.color.grey))
     ) {
-            Column(
-               Modifier.fillMaxSize()
-                   .verticalScroll(scrollState)
-            ) {
-                TopUserSection()
-                Spacer(modifier = Modifier.height(16.dp))
-                GameMadeButtons(onSinglePlayerClick = onSinglePlayerClick)
-                Spacer(modifier = Modifier.height(32.dp))
-                CategoryHeader()
-                CategoryGrid()
-                Banner()
-            }
+        Column(
+            Modifier.fillMaxSize()
+                .verticalScroll(scrollState)
+        ) {
+            TopUserSection()
+            Spacer(modifier = Modifier.height(16.dp))
+            GameMadeButtons(
+                onCreateQuizClick = onCreateQuizClick,
+                onSinglePlayerClick = onSinglePlayerClick,
+                onMultiPlayerClick = onMultiPlayerClick
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            CategoryHeader()
+            CategoryGrid()
+            Banner()
+        }
         BottomNavigationBar(
             modifier = Modifier.align(Alignment.BottomCenter),
             onItemSelected = { itemId ->
