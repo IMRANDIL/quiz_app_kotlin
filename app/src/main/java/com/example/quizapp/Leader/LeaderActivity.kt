@@ -2,6 +2,7 @@ package com.example.quizapp.Leader
 
 import android.os.Bundle
 import android.view.View
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -19,6 +20,13 @@ class LeaderActivity : AppCompatActivity() {
         val topUsers = loadData().sortedByDescending { it.score }.take(3)
         val otherUsers = loadData().filterNot { topUsers.contains(it) }
 
+        setContent {
+            LeaderScreen(
+                topUsers = topUsers,
+                otherUsers = otherUsers,
+                onBack = { finish() }
+            )
+        }
     }
 
     private fun loadData():List<UserModel> {

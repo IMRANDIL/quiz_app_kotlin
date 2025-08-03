@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.example.quizapp.Dashboard.screens.MainScreen
+import com.example.quizapp.Leader.LeaderActivity
 import com.example.quizapp.Question.Model.QuestionModel
 import com.example.quizapp.Question.QuestionActivity
 import com.example.quizapp.ui.theme.QuizAppTheme
@@ -176,6 +177,8 @@ fun QuizApp(questionList: List<QuestionModel>) {
                 },
                 onBoardClick = {
                     // Handle board click
+                    val intent = Intent(context, LeaderActivity::class.java)
+                    context.startActivity(intent)
                 }
             )
         }
