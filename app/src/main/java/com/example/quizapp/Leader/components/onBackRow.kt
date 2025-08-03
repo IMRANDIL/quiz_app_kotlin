@@ -1,5 +1,6 @@
 package com.example.quizapp.Leader.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,11 +29,13 @@ fun OnBackRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(24.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+
     ) {
         IconButton(
             onClick = onBack,
-            modifier = Modifier.weight(1f)
+
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.back),
