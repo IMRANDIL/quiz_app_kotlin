@@ -2,7 +2,9 @@ package com.example.quizapp.Leader
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.quizapp.Leader.Model.UserModel
 import com.example.quizapp.Leader.components.OnBackRow
+import com.example.quizapp.Leader.components.TopThreeSection
 import com.example.quizapp.R
 
 
@@ -31,6 +34,13 @@ fun LeaderScreen(
         item {
             OnBackRow(onBack = onBack)
         }
+
+        item {
+            TopThreeSection(users = topUsers)
+            Spacer(modifier = Modifier.height(16.dp))
+
+        }
+
     }
 }
 
