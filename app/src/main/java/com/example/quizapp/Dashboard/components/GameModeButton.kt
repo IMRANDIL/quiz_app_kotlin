@@ -1,4 +1,4 @@
-package com.example.quizapp.dashboard.components
+package com.example.quizapp.Dashboard.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
