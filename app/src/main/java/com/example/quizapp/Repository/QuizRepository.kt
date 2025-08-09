@@ -1,6 +1,7 @@
 package com.example.quizapp.repository
 
 import android.util.Log
+import com.example.quizapp.Network.Models.Category
 import com.example.quizapp.network.NetworkConfig
 import com.example.quizapp.network.models.QuestionRequest
 import com.example.quizapp.network.models.QuestionResponse
@@ -194,4 +195,35 @@ class QuizRepository {
             }
         }
     }
+
+
+    suspend fun getAllCategories(): Result<List<Category>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.getAllCategories()
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    if (apiResponse != null && apiResponse.success && apiResponse.data != null) {
+                        // Map List<String> -> List<Category>
+                        val categoryList = apiResponse.data.mapIndexed { index, name ->
+                            Category(
+                                id = index.toString(),
+                                name = name,
+                                iconRes = com.example.quizapp.R.drawable.ic_launcher_foreground // put your default icon here
+                            )
+                        }
+                        Result.success(categoryList)
+                    } else {
+                        Result.failure(Exception(apiResponse?.message ?: "Failed to fetch categories"))
+                    }
+                } else {
+                    Result.failure(Exception("Error: ${response.code()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(Exception("Unexpected error: ${e.message}"))
+            }
+        }
+    }
+
+
 }

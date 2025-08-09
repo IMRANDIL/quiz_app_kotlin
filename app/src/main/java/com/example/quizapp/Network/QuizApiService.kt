@@ -20,4 +20,9 @@ interface QuizApiService {
     // Get a single question by ID
     @GET("questions/{id}")
     suspend fun getQuestion(@Path("id") id: String): Response<ApiResponse<QuestionResponse>>
+
+    // Get all categories
+    @GET("questions/categories")
+    suspend fun getAllCategories(): Response<ApiResponse<List<String>>>
+
 }

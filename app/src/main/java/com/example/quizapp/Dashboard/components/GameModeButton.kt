@@ -47,14 +47,14 @@ fun GameMadeButtons(
             modifier = Modifier.weight(1f) // ✅ weight is here now
         )
         GameButton(
-            colors = listOf(colorResource(id = R.color.purple), colorResource(id = R.color.blue)),
+            colors = listOf(colorResource(id = R.color.black), colorResource(id = R.color.navy_blue)),
             iconRes = R.drawable.btn2,
             text = "Single Player",
             onClick = onSinglePlayerClick,
             modifier = Modifier.weight(1f)
         )
         GameButton(
-            colors = listOf(colorResource(id = R.color.orange), Color(0xFFFFA726)),
+            colors = listOf(colorResource(id = R.color.orange), colorResource(id = R.color.purple_700)),
             iconRes = R.drawable.btn3,
             text = "Multi Player",
             onClick = onMultiPlayerClick,
