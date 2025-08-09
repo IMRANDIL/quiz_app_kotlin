@@ -1,7 +1,8 @@
 package com.example.quizapp.repository
 
 import android.util.Log
-import com.example.quizapp.Network.Models.Category
+import com.example.quizapp.network.models.Category
+import com.example.quizapp.R
 import com.example.quizapp.network.NetworkConfig
 import com.example.quizapp.network.models.QuestionRequest
 import com.example.quizapp.network.models.QuestionResponse
@@ -206,10 +207,20 @@ class QuizRepository {
                     if (apiResponse != null && apiResponse.success && apiResponse.data != null) {
                         // Map List<String> -> List<Category>
                         val categoryList = apiResponse.data.mapIndexed { index, name ->
+                            // Map category names to appropriate icons
+                            val iconRes = when (name.lowercase()) {
+                                "science" -> R.drawable.cat1
+                                "history" -> R.drawable.cat2
+                                "sport", "sports" -> R.drawable.cat3
+                                "art" -> R.drawable.cat4
+                                // Add more mappings for other categories if you have icons
+                                else -> R.drawable.ic_launcher_background // default icon
+                            }
+
                             Category(
-                                id = index.toString(),
+                                id = (index + 1).toString(), // Generate ID based on index
                                 name = name,
-                                iconRes = com.example.quizapp.R.drawable.ic_launcher_foreground // put your default icon here
+                                iconRes = iconRes
                             )
                         }
                         Result.success(categoryList)

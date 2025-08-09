@@ -187,6 +187,11 @@ fun QuizApp(questionList: List<QuestionModel>) {
                 onBoardClick = {
                     val intent = Intent(context, LeaderActivity::class.java)
                     context.startActivity(intent)
+                },
+                onSeeAllCategoriesClick = {
+                    Log.d("MainActivity", "Starting AllCategoriesActivity")
+                    val intent = Intent(context, AllCategoriesActivity::class.java)
+                    context.startActivity(intent)
                 }
             )
         }
