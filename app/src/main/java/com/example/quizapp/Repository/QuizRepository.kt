@@ -6,79 +6,191 @@ import com.example.quizapp.network.models.QuestionRequest
 import com.example.quizapp.network.models.QuestionResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
+import java.io.IOException
+import java.net.SocketTimeoutException
 
 class QuizRepository {
 
     private val apiService = NetworkConfig.quizApiService
+    private val TAG = "QuizRepository"
 
-    // Create a new question in MongoDB
-    suspend fun createQuestion(question: QuestionRequest): Result<QuestionResponse> {
+    /**
+     * Create a new question
+     */
+    suspend fun createQuestion(questionRequest: QuestionRequest): Result<QuestionResponse> {
         return withContext(Dispatchers.IO) {
             try {
-                Log.d("QuizRepository", "Creating question: ${question.question}")
+                Log.d(TAG, "Creating question: $questionRequest")
+                Log.d(TAG, "Using base URL: ${NetworkConfig.getCurrentBaseUrl()}")
 
-                val response = apiService.createQuestion(question)
+                val response = apiService.createQuestion(questionRequest)
 
-                if (response.isSuccessful && response.body()?.success == true) {
-                    response.body()?.data?.let { data ->
-                        Log.d("QuizRepository", "Question created successfully with ID: ${data._id}")
-                        Result.success(data)
-                    } ?: Result.failure(Exception("No data received"))
+                Log.d(TAG, "Response code: ${response.code()}")
+                Log.d(TAG, "Response body: ${response.body()}")
+
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    if (apiResponse != null && apiResponse.success && apiResponse.data != null) {
+                        Log.d(TAG, "Question created successfully: ${apiResponse.data}")
+                        Result.success(apiResponse.data)
+                    } else {
+                        val errorMessage = apiResponse?.message ?: "Unknown error occurred"
+                        Log.e(TAG, "API returned error: $errorMessage")
+                        Result.failure(Exception(errorMessage))
+                    }
                 } else {
-                    val errorMsg = response.body()?.message ?: "Unknown error"
-                    Log.e("QuizRepository", "Failed to create question: $errorMsg")
-                    Result.failure(Exception(errorMsg))
+                    // Handle HTTP errors
+                    val errorMessage = when (response.code()) {
+                        400 -> "Invalid question data. Please check all fields."
+                        409 -> "This question already exists."
+                        429 -> "Too many requests. Please wait before creating another question."
+                        500 -> "Server error. Please try again later."
+                        else -> "Failed to create question: ${response.code()}"
+                    }
+                    Log.e(TAG, "HTTP Error: ${response.code()} - $errorMessage")
+                    Result.failure(Exception(errorMessage))
                 }
+
+            } catch (e: HttpException) {
+                Log.e(TAG, "HTTP Exception: ${e.code()} - ${e.message()}")
+                val errorMessage = when (e.code()) {
+                    400 -> "Invalid request data"
+                    401 -> "Authentication required"
+                    403 -> "Access forbidden"
+                    404 -> "Service not found"
+                    500 -> "Server error"
+                    else -> "Network error: ${e.message()}"
+                }
+                Result.failure(Exception(errorMessage))
+            } catch (e: SocketTimeoutException) {
+                Log.e(TAG, "Timeout Exception", e)
+                Result.failure(Exception("Request timed out. Please check your internet connection."))
+            } catch (e: IOException) {
+                Log.e(TAG, "IO Exception", e)
+                Result.failure(Exception("Network error. Please check your internet connection."))
             } catch (e: Exception) {
-                Log.e("QuizRepository", "Network error creating question", e)
-                Result.failure(e)
+                Log.e(TAG, "Unexpected Exception", e)
+                Result.failure(Exception("Unexpected error: ${e.message}"))
             }
         }
     }
 
-    // Get all questions from MongoDB
-    suspend fun getAllQuestions(): Result<List<QuestionResponse>> {
+    /**
+     * Get all questions
+     */
+    suspend fun getAllQuestions(
+        category: String? = null,
+        limit: Int = 10,
+        page: Int = 1
+    ): Result<List<QuestionResponse>> {
         return withContext(Dispatchers.IO) {
             try {
-                Log.d("QuizRepository", "Getting all questions from MongoDB")
+                Log.d(TAG, "Fetching questions - category: $category, limit: $limit, page: $page")
 
                 val response = apiService.getAllQuestions()
 
-                if (response.isSuccessful && response.body()?.success == true) {
-                    response.body()?.data?.let { data ->
-                        Log.d("QuizRepository", "Retrieved ${data.size} questions from MongoDB")
-                        Result.success(data)
-                    } ?: Result.failure(Exception("No data received"))
+                Log.d(TAG, "Response code: ${response.code()}")
+
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    if (apiResponse != null && apiResponse.success && apiResponse.data != null) {
+                        Log.d(TAG, "Questions fetched successfully: ${apiResponse.data.size} questions")
+                        Result.success(apiResponse.data)
+                    } else {
+                        val errorMessage = apiResponse?.message ?: "Failed to fetch questions"
+                        Log.e(TAG, "API returned error: $errorMessage")
+                        Result.failure(Exception(errorMessage))
+                    }
                 } else {
-                    val errorMsg = response.body()?.message ?: "Unknown error"
-                    Log.e("QuizRepository", "Failed to get questions: $errorMsg")
-                    Result.failure(Exception(errorMsg))
+                    val errorMessage = "Failed to fetch questions: ${response.code()}"
+                    Log.e(TAG, "HTTP Error: $errorMessage")
+                    Result.failure(Exception(errorMessage))
                 }
+
+            } catch (e: HttpException) {
+                Log.e(TAG, "HTTP Exception: ${e.code()} - ${e.message()}")
+                Result.failure(Exception("Network error: ${e.message()}"))
+            } catch (e: SocketTimeoutException) {
+                Log.e(TAG, "Timeout Exception", e)
+                Result.failure(Exception("Request timed out. Please check your internet connection."))
+            } catch (e: IOException) {
+                Log.e(TAG, "IO Exception", e)
+                Result.failure(Exception("Network error. Please check your internet connection."))
             } catch (e: Exception) {
-                Log.e("QuizRepository", "Network error getting questions", e)
-                Result.failure(e)
+                Log.e(TAG, "Unexpected Exception", e)
+                Result.failure(Exception("Unexpected error: ${e.message}"))
             }
         }
     }
 
-    // Test connection to MongoDB (for debugging)
+    /**
+     * Get a single question by ID
+     */
+    suspend fun getQuestion(id: String): Result<QuestionResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d(TAG, "Fetching question with ID: $id")
+
+                val response = apiService.getQuestion(id)
+
+                Log.d(TAG, "Response code: ${response.code()}")
+
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    if (apiResponse != null && apiResponse.success && apiResponse.data != null) {
+                        Log.d(TAG, "Question fetched successfully: ${apiResponse.data}")
+                        Result.success(apiResponse.data)
+                    } else {
+                        val errorMessage = apiResponse?.message ?: "Question not found"
+                        Log.e(TAG, "API returned error: $errorMessage")
+                        Result.failure(Exception(errorMessage))
+                    }
+                } else {
+                    val errorMessage = when (response.code()) {
+                        404 -> "Question not found"
+                        else -> "Failed to fetch question: ${response.code()}"
+                    }
+                    Log.e(TAG, "HTTP Error: $errorMessage")
+                    Result.failure(Exception(errorMessage))
+                }
+
+            } catch (e: HttpException) {
+                Log.e(TAG, "HTTP Exception: ${e.code()} - ${e.message()}")
+                Result.failure(Exception("Network error: ${e.message()}"))
+            } catch (e: SocketTimeoutException) {
+                Log.e(TAG, "Timeout Exception", e)
+                Result.failure(Exception("Request timed out. Please check your internet connection."))
+            } catch (e: IOException) {
+                Log.e(TAG, "IO Exception", e)
+                Result.failure(Exception("Network error. Please check your internet connection."))
+            } catch (e: Exception) {
+                Log.e(TAG, "Unexpected Exception", e)
+                Result.failure(Exception("Unexpected error: ${e.message}"))
+            }
+        }
+    }
+
+    /**
+     * Test connection to backend
+     */
     suspend fun testConnection(): Result<String> {
         return withContext(Dispatchers.IO) {
             try {
-                Log.d("QuizRepository", "Testing MongoDB connection...")
+                Log.d(TAG, "Testing connection to: ${NetworkConfig.getCurrentBaseUrl()}")
 
+                // Try to get questions as a connection test
                 val response = apiService.getAllQuestions()
 
                 if (response.isSuccessful) {
-                    Log.d("QuizRepository", "MongoDB connection successful!")
-                    Result.success("Connection successful")
+                    Result.success("Connection successful!")
                 } else {
-                    Log.e("QuizRepository", "MongoDB connection failed: ${response.code()}")
                     Result.failure(Exception("Connection failed: ${response.code()}"))
                 }
+
             } catch (e: Exception) {
-                Log.e("QuizRepository", "MongoDB connection error", e)
-                Result.failure(e)
+                Log.e(TAG, "Connection test failed", e)
+                Result.failure(Exception("Connection failed: ${e.message}"))
             }
         }
     }
