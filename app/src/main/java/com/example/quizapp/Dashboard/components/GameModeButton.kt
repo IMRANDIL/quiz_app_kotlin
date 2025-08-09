@@ -1,27 +1,28 @@
-package com.example.quizapp.Dashboard.components
+package com.example.quizapp.dashboard.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.quizapp.R
 
 @Composable
@@ -30,35 +31,30 @@ fun GameMadeButtons(
     onCreateQuizClick: () -> Unit = {},
     onSinglePlayerClick: () -> Unit = {},
     onMultiPlayerClick: () -> Unit = {}
-){
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .height(height = 145.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .height(150.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         GameButton(
-            backgroundColor = R.color.blue,
+            colors = listOf(colorResource(id = R.color.blue), colorResource(id = R.color.purple)),
             iconRes = R.drawable.btn1,
             text = "Create Quiz",
             onClick = onCreateQuizClick,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f) // ✅ weight is here now
         )
-        Spacer(modifier = Modifier.width(12.dp))
-
         GameButton(
-            backgroundColor = R.color.purple,
+            colors = listOf(colorResource(id = R.color.purple), colorResource(id = R.color.blue)),
             iconRes = R.drawable.btn2,
             text = "Single Player",
             onClick = onSinglePlayerClick,
             modifier = Modifier.weight(1f)
         )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
         GameButton(
-            backgroundColor = R.color.orange,
+            colors = listOf(colorResource(id = R.color.orange), Color(0xFFFFA726)),
             iconRes = R.drawable.btn3,
             text = "Multi Player",
             onClick = onMultiPlayerClick,
@@ -69,44 +65,47 @@ fun GameMadeButtons(
 
 @Composable
 fun GameButton(
-    backgroundColor: Int,
+    colors: List<Color>,
     iconRes: Int,
     text: String,
     onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
-){
-    Column(
+) {
+    Card(
         modifier = modifier
             .fillMaxHeight()
-            .clickable(enabled = onClick != null, onClick = onClick ?: {})
-            .clip(shape = RoundedCornerShape(10.dp))
-            .background(color = colorResource(id = backgroundColor))
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .shadow(elevation = 6.dp, shape = RoundedCornerShape(16.dp))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onClick?.invoke() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Image(
-            painter = painterResource(id = iconRes),
-            contentDescription = null,
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-        )
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(colors),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .padding(horizontal = 10.dp, vertical = 14.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(60.dp)
+            )
 
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = text,
-            color = colorResource(id = R.color.white),
-        )
+            Text(
+                text = text,
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center
+            )
+        }
     }
-}
-
-@Composable
-fun GameButtonPreview() {
-    GameButton(
-        backgroundColor = R.color.orange,
-        iconRes = R.drawable.ic_launcher_background,
-        text = "Single",
-        onClick = {}
-    )
 }

@@ -18,9 +18,9 @@ import com.example.quizapp.Dashboard.components.Banner
 import com.example.quizapp.Dashboard.components.BottomNavigationBar
 import com.example.quizapp.Dashboard.components.CategoryGrid
 import com.example.quizapp.Dashboard.components.CategoryHeader
-import com.example.quizapp.Dashboard.components.GameMadeButtons
 import com.example.quizapp.Dashboard.components.TopUserSection
 import com.example.quizapp.R
+import com.example.quizapp.dashboard.components.GameMadeButtons
 
 @Composable
 @Preview
