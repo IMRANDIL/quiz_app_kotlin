@@ -4,7 +4,6 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,6 +13,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,30 +30,26 @@ fun AllCategoriesScreen(
     onCategoryClick: (Category) -> Unit = {},
     viewModel: CategoryViewModel = viewModel()
 ) {
+    // Get categories from the ViewModel (from API/DB)
     val categories by viewModel.categories.collectAsState()
     var isLoaded by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(true) }
 
-    // Extended categories list
-    val allCategories = remember {
-        listOf(
-            Category("Science", R.drawable.cat1),
-            Category("History", R.drawable.cat2),
-            Category("Sport", R.drawable.cat3),
-            Category("Art", R.drawable.cat4),
-            Category("Geography", R.drawable.ic_launcher_background),
-            Category("Music", R.drawable.ic_launcher_background),
-            Category("Technology", R.drawable.ic_launcher_background),
-            Category("Movies", R.drawable.ic_launcher_background),
-            Category("Literature", R.drawable.ic_launcher_background),
-            Category("Mathematics", R.drawable.ic_launcher_background),
-            Category("Biology", R.drawable.ic_launcher_background),
-            Category("Chemistry", R.drawable.ic_launcher_background)
-        )
+    // Use categories from ViewModel instead of hardcoded list
+    val allCategories = remember(categories) {
+        if (categories.isNotEmpty()) {
+            categories
+        } else {
+            viewModel.getAllCategories() // Fallback to default if API fails
+        }
     }
 
     LaunchedEffect(Unit) {
+        // Refresh categories from API
+        viewModel.fetchCategories()
         delay(100)
         isLoaded = true
+        isLoading = false
     }
 
     Box(
@@ -137,11 +133,50 @@ fun AllCategoriesScreen(
                 )
             }
 
-            // Use the AllCategoriesGrid component
-            AllCategoriesGrid(
-                categories = allCategories,
-                onCategoryClick = onCategoryClick
-            )
+            // Show loading or categories
+            if (isLoading && allCategories.isEmpty()) {
+                // Loading state
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = colorResource(id = R.color.purple),
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            } else if (allCategories.isEmpty()) {
+                // Empty state
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "No categories available",
+                            fontSize = 18.sp,
+                            color = colorResource(id = R.color.navy_blue),
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Please check your internet connection",
+                            fontSize = 14.sp,
+                            color = colorResource(id = R.color.navy_blue).copy(alpha = 0.6f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            } else {
+                // Show categories grid
+                AllCategoriesGrid(
+                    categories = allCategories,
+                    onCategoryClick = onCategoryClick
+                )
+            }
         }
     }
 }

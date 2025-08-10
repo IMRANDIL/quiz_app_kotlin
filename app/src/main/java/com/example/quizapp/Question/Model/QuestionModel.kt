@@ -1,12 +1,11 @@
 package com.example.quizapp.Question.Model
 
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize  // ✅ fixed
-
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class QuestionModel(
-    val id: Int,
+    val id: String = "",  // Changed to String to match API
     val question: String?,
     val answer_1: String?,
     val answer_2: String?,
@@ -15,5 +14,6 @@ data class QuestionModel(
     val correct_answer: String?,
     val score: Int,
     val pickPath: String?,
-    val clickedAnswer: String?
+    val clickedAnswer: String?,
+    val category: String? = null  // ✅ Added category field
 ): Parcelable

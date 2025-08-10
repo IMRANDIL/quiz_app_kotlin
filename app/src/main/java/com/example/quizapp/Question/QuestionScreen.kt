@@ -44,6 +44,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun QuestionScreen(
     questions: List<QuestionModel>,
+    categoryName: String? = null, // Add category parameter
     onFinish: (finalScore: Int) -> Unit = {},
     onBackClick: () -> Unit = {},
 ) {
@@ -62,11 +63,15 @@ fun QuestionScreen(
 
     val context = LocalContext.current
     val imageResId = remember(currentQuestion.pickPath) {
-        context.resources.getIdentifier(
-            currentQuestion.pickPath ?: "",
-            "drawable",
-            context.packageName
-        )
+        if (currentQuestion.pickPath != null) {
+            context.resources.getIdentifier(
+                currentQuestion.pickPath,
+                "drawable",
+                context.packageName
+            )
+        } else {
+            0 // Return 0 if no image path
+        }
     }
 
     LazyColumn(
@@ -89,7 +94,11 @@ fun QuestionScreen(
                 }
                 Spacer(modifier = Modifier.width(width = 16.dp))
                 Text(
-                    text = "Single Player",
+                    text = if (categoryName != null) {
+                        "$categoryName Quiz"
+                    } else {
+                        "Single Player"
+                    },
                     fontSize = 20.sp,
                     color = colorResource(id = R.color.navy_blue),
                     fontWeight = FontWeight.Bold
@@ -110,62 +119,6 @@ fun QuestionScreen(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
-
-                // ✅ NAVIGATION BUTTONS - Manual navigation (optional)
-                // Uncomment below if you want manual navigation instead of auto-advance
-
-                /*
-                // ✅ Check if current question is answered
-                val isCurrentQuestionAnswered = currentQuestion.clickedAnswer != null
-
-                IconButton(
-                    onClick = {
-                        // ✅ Only allow going back if current question is answered AND not on first question
-                        if (state.currentIndex > 0 && isCurrentQuestionAnswered) {
-                            state = state.copy(currentIndex = state.currentIndex - 1)
-                            // selectedAnswer will be updated automatically by remember(state.currentIndex)
-                        }
-                    },
-                    enabled = state.currentIndex > 0 && isCurrentQuestionAnswered
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.left_arrow),
-                        contentDescription = "left arrow",
-                        tint = if (state.currentIndex > 0 && isCurrentQuestionAnswered)
-                            colorResource(id = R.color.navy_blue)
-                        else
-                            Color.Gray
-                    )
-                }
-
-                IconButton(
-                    onClick = {
-                        if (state.currentIndex == state.questions.size - 1) {
-                            // ✅ Only finish if current question is answered
-                            if (isCurrentQuestionAnswered) {
-                                val finalScore = calculateFinalScore(state.questions)
-                                onFinish(finalScore)
-                            }
-                        } else {
-                            // ✅ Only allow going forward if current question is answered
-                            if (isCurrentQuestionAnswered) {
-                                state = state.copy(currentIndex = state.currentIndex + 1)
-                                // selectedAnswer will be updated automatically by remember(state.currentIndex)
-                            }
-                        }
-                    },
-                    enabled = isCurrentQuestionAnswered
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.right_arrow),
-                        contentDescription = "right arrow",
-                        tint = if (isCurrentQuestionAnswered)
-                            colorResource(id = R.color.navy_blue)
-                        else
-                            Color.Gray
-                    )
-                }
-                */
             }
         }
 
@@ -195,17 +148,20 @@ fun QuestionScreen(
             )
         }
 
-        item {
-            Image(
-                painter = painterResource(id = imageResId),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
-                    .height(200.dp)
-                    .clip(shape = RoundedCornerShape(size = 12.dp)),
-                contentScale = ContentScale.Crop
-            )
+        // Only show image if it exists
+        if (imageResId != 0 && currentQuestion.pickPath != null) {
+            item {
+                Image(
+                    painter = painterResource(id = imageResId),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 8.dp)
+                        .height(200.dp)
+                        .clip(shape = RoundedCornerShape(size = 12.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
 
         itemsIndexed(
@@ -248,7 +204,7 @@ fun QuestionScreen(
     // ✅ Auto-advance effect - triggers when an answer is selected
     LaunchedEffect(selectedAnswer) {
         if (selectedAnswer != null) {
-            delay(400) // Wait 2 seconds to show correct/wrong answer
+            delay(400) // Wait 400ms to show correct/wrong answer
 
             if (state.currentIndex == state.questions.size - 1) {
                 // Last question - finish quiz
@@ -278,17 +234,20 @@ private fun calculateFinalScore(questions: List<QuestionModel>): Int {
 fun QuestionScreenPreview() {
     val questions = listOf(
         QuestionModel(
-            id = 1,
+            id = "1",
             question = "What is the capital of France?",
             answer_1 = "Paris",
             answer_2 = "London",
             answer_3 = "Berlin",
             answer_4 = "Madrid",
-            correct_answer = "a", // Should be "a" not "Paris"
+            correct_answer = "a",
             score = 10,
             pickPath = "q_1",
             clickedAnswer = null
         )
     )
-    QuestionScreen(questions = questions)
+    QuestionScreen(
+        questions = questions,
+        categoryName = "Geography"
+    )
 }

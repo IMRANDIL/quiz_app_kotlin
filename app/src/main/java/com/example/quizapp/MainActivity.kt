@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
     private fun questionList(): List<QuestionModel> {
         val questions = listOf(
             QuestionModel(
-                1,
+                1.toString(),
                 "Which planet is the largest planet in the solar system?",
                 "Earth",
                 "Mars",
@@ -44,10 +44,11 @@ class MainActivity : ComponentActivity() {
                 "d",
                 5,
                 "q_1",
-                null
+                null,
+                "Science"  // Added category
             ),
             QuestionModel(
-                2,
+                2.toString(),
                 "Which country is the largest country in the world by land area?",
                 "Russia",
                 "Canada",
@@ -56,10 +57,11 @@ class MainActivity : ComponentActivity() {
                 "a",
                 5,
                 "q_2",
-                null
+                null,
+                "Geography"  // Added category
             ),
             QuestionModel(
-                3,
+                3.toString(),
                 "Which of the following substances is used as an anti-cancer medication?",
                 "Cheese",
                 "Lemon juice",
@@ -68,10 +70,11 @@ class MainActivity : ComponentActivity() {
                 "c",
                 5,
                 "q_3",
-                null
+                null,
+                "Science"  // Added category
             ),
             QuestionModel(
-                4,
+                4.toString(),
                 "Which moon has an atmosphere?",
                 "Luna",
                 "Phobos",
@@ -80,10 +83,11 @@ class MainActivity : ComponentActivity() {
                 "d",
                 5,
                 "q_4",
-                null
+                null,
+                "Science"  // Added category
             ),
             QuestionModel(
-                5,
+                5.toString(),
                 "Which symbol represents the element with atomic number 6?",
                 "O",
                 "H",
@@ -92,10 +96,11 @@ class MainActivity : ComponentActivity() {
                 "c",
                 5,
                 "q_5",
-                null
+                null,
+                "Science"  // Added category
             ),
             QuestionModel(
-                6,
+                6.toString(),
                 "Who is credited with inventing theater as we know it?",
                 "Shakespeare",
                 "Arthur Miller",
@@ -104,10 +109,11 @@ class MainActivity : ComponentActivity() {
                 "d",
                 5,
                 "q_6",
-                null
+                null,
+                "History"  // Added category
             ),
             QuestionModel(
-                7,
+                7.toString(),
                 "Which ocean is the largest?",
                 "Pacific",
                 "Atlantic",
@@ -116,10 +122,11 @@ class MainActivity : ComponentActivity() {
                 "a",
                 5,
                 "q_7",
-                null
+                null,
+                "Geography"  // Added category
             ),
             QuestionModel(
-                8,
+                8.toString(),
                 "Which religions are most practiced?",
                 "Islam, Christianity, Judaism",
                 "Buddhism, Hinduism, Sikhism",
@@ -128,10 +135,11 @@ class MainActivity : ComponentActivity() {
                 "a",
                 5,
                 "q_8",
-                null
+                null,
+                "History"  // Added category
             ),
             QuestionModel(
-                9,
+                9.toString(),
                 "Which continent has the most independent countries?",
                 "Asia",
                 "Europe",
@@ -140,10 +148,11 @@ class MainActivity : ComponentActivity() {
                 "c",
                 5,
                 "q_9",
-                null
+                null,
+                "Geography"  // Added category
             ),
             QuestionModel(
-                10,
+                10.toString(),
                 "Which ocean has the greatest average depth?",
                 "Pacific",
                 "Atlantic",
@@ -152,7 +161,8 @@ class MainActivity : ComponentActivity() {
                 "d",
                 5,
                 "q_10",
-                null
+                null,
+                "Geography"  // Added category
             )
         )
 

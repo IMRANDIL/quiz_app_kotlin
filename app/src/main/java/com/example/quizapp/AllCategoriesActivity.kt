@@ -39,10 +39,14 @@ class AllCategoriesActivity : ComponentActivity() {
                             Log.d("AllCategoriesActivity", "Category clicked: ${category.name}")
 
                             // Start QuestionActivity with the selected category
+                            // This will use the same single player quiz screen
                             val intent = Intent(context, QuestionActivity::class.java).apply {
+                                // Pass the category name to filter questions
                                 putExtra("category", category.name)
-                                // You can also pass category-specific questions here
-                                // For now, we'll let QuestionActivity handle loading questions based on category
+                                putExtra("categoryId", category.id)
+
+                                // Optional: You can also pass the whole category object if needed
+                                putExtra("categoryObject", category)
                             }
                             context.startActivity(intent)
                         }

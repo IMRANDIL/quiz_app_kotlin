@@ -15,7 +15,11 @@ interface QuizApiService {
 
     // Get all questions
     @GET("questions")
-    suspend fun getAllQuestions(): Response<ApiResponse<List<QuestionResponse>>>
+    suspend fun getAllQuestions(
+        @Query("category") category: String? = null,
+        @Query("limit") limit: Int = 10,
+        @Query("page") page: Int = 1
+    ): Response<ApiResponse<List<QuestionResponse>>>
 
     // Get a single question by ID
     @GET("questions/{id}")
@@ -24,5 +28,13 @@ interface QuizApiService {
     // Get all categories
     @GET("questions/categories")
     suspend fun getAllCategories(): Response<ApiResponse<List<String>>>
+
+    // Get all  question by category
+    @GET("questions/category/{category}")
+    suspend fun getQuestionsByCategory(
+        @Path("category") category: String,
+        @Query("limit") limit: Int
+    ): Response<ApiResponse<List<QuestionResponse>>>
+
 
 }
