@@ -39,6 +39,7 @@ import com.example.quizapp.Question.Model.QuestionModel
 import com.example.quizapp.Question.Model.QuestionUiState
 import com.example.quizapp.Question.components.AnswerItem
 import com.example.quizapp.R
+import com.example.quizapp.network.models.Category
 import kotlinx.coroutines.delay
 
 @Composable
@@ -124,14 +125,14 @@ fun QuestionScreen(
 
         item {
             LinearProgressIndicator(
-                progress = (state.currentIndex + 1).toFloat() / state.questions.size,
-                color = colorResource(id = R.color.orange),
-                trackColor = Color(0xffd1d1d1),
+                progress = { (state.currentIndex + 1).toFloat() / state.questions.size },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
                     .height(14.dp)
-                    .clip(shape = RoundedCornerShape(percent = 50))
+                    .clip(shape = RoundedCornerShape(percent = 50)),
+                color = colorResource(id = R.color.orange),
+                trackColor = Color(0xffd1d1d1),
             )
         }
 
@@ -243,7 +244,13 @@ fun QuestionScreenPreview() {
             correct_answer = "a",
             score = 10,
             pickPath = "q_1",
-            clickedAnswer = null
+            clickedAnswer = null,
+            category = Category(
+                id = "geography_id",
+                name = "Geography",
+                description = "Test your knowledge of geography",
+                iconRes = null
+            )
         )
     )
     QuestionScreen(

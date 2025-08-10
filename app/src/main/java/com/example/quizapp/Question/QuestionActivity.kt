@@ -67,7 +67,7 @@ class QuestionActivity : ComponentActivity() {
             // If category is specified, filter the questions
             val filteredQuestions = if (categoryName != null) {
                 receivedList.filter { question ->
-                    question.category?.equals(categoryName, ignoreCase = true) == true
+                    question.category?.name?.equals(categoryName, ignoreCase = true) == true
                 }
             } else {
                 receivedList

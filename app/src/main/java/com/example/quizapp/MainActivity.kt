@@ -17,6 +17,7 @@ import com.example.quizapp.Leader.LeaderActivity
 import com.example.quizapp.Question.Model.QuestionModel
 import com.example.quizapp.Question.QuestionActivity
 import com.example.quizapp.Quiz.CreateQuizActivity
+import com.example.quizapp.network.models.Category
 import com.example.quizapp.ui.theme.QuizAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,136 +36,187 @@ class MainActivity : ComponentActivity() {
     private fun questionList(): List<QuestionModel> {
         val questions = listOf(
             QuestionModel(
-                1.toString(),
-                "Which planet is the largest planet in the solar system?",
-                "Earth",
-                "Mars",
-                "Neptune",
-                "Jupiter",
-                "d",
-                5,
-                "q_1",
-                null,
-                "Science"  // Added category
+                id = 1.toString(),
+                question = "Which planet is the largest planet in the solar system?",
+                answer_1 = "Earth",
+                answer_2 = "Mars",
+                answer_3 = "Neptune",
+                answer_4 = "Jupiter",
+                correct_answer = "d",
+                clickedAnswer = null,
+                score = 5,
+                pickPath = "q_1",
+                category = Category(
+                    id = "science_id", // Provide an appropriate ID
+                    name = "Science",
+                    description = "Test your knowledge of science",
+                    iconRes = null
+                )
             ),
             QuestionModel(
-                2.toString(),
-                "Which country is the largest country in the world by land area?",
-                "Russia",
-                "Canada",
-                "United States",
-                "China",
-                "a",
-                5,
-                "q_2",
-                null,
-                "Geography"  // Added category
+                id = 2.toString(),
+                question = "Which country is the largest country in the world by land area?",
+                answer_1 = "Russia",
+                answer_2 = "Canada",
+                answer_3 = "United States",
+                answer_4 = "China",
+                correct_answer = "a",
+                clickedAnswer = null,
+                score = 5,
+                pickPath = "q_2",
+                category = Category(
+                    id = "geography_id",
+                    name = "Geography",
+                    description = "Test your knowledge of geography",
+                    iconRes = null
+                )
             ),
             QuestionModel(
-                3.toString(),
-                "Which of the following substances is used as an anti-cancer medication?",
-                "Cheese",
-                "Lemon juice",
-                "Cannabis",
-                "Paspalum",
-                "c",
-                5,
-                "q_3",
-                null,
-                "Science"  // Added category
+                id = 3.toString(),
+                question = "Which of the following substances is used as an anti-cancer medication?",
+                answer_1 = "Cheese",
+                answer_2 = "Lemon juice",
+                answer_3 = "Cannabis",
+                answer_4 = "Paspalum",
+                correct_answer = "c",
+                clickedAnswer = null,
+                score = 5,
+                pickPath = "q_3",
+                category = Category(
+                    id = "science_id",
+                    name = "Science",
+                    description = "Test your knowledge of science",
+                    iconRes = null
+                )
             ),
             QuestionModel(
-                4.toString(),
-                "Which moon has an atmosphere?",
-                "Luna",
-                "Phobos",
-                "Venus' moon",
-                "None of the above",
-                "d",
-                5,
-                "q_4",
-                null,
-                "Science"  // Added category
+                id = 4.toString(),
+                question = "Which moon has an atmosphere?",
+                answer_1 = "Luna",
+                answer_2 = "Phobos",
+                answer_3 = "Venus' moon",
+                answer_4 = "None of the above",
+                correct_answer = "d",
+                clickedAnswer = null,
+                score = 5,
+                pickPath = "q_4",
+                category = Category(
+                    id = "science_id",
+                    name = "Science",
+                    description = "Test your knowledge of science",
+                    iconRes = null
+                )
             ),
             QuestionModel(
-                5.toString(),
-                "Which symbol represents the element with atomic number 6?",
-                "O",
-                "H",
-                "C",
-                "N",
-                "c",
-                5,
-                "q_5",
-                null,
-                "Science"  // Added category
+                id = 5.toString(),
+                question = "Which symbol represents the element with atomic number 6?",
+                answer_1 = "O",
+                answer_2 = "H",
+                answer_3 = "C",
+                answer_4 = "N",
+                correct_answer = "c",
+                clickedAnswer = null,
+                score = 5,
+                pickPath = "q_5",
+                category = Category(
+                    id = "science_id",
+                    name = "Science",
+                    description = "Test your knowledge of science",
+                    iconRes = null
+                )
             ),
             QuestionModel(
-                6.toString(),
-                "Who is credited with inventing theater as we know it?",
-                "Shakespeare",
-                "Arthur Miller",
-                "Ashkouri",
-                "Ancient Greeks",
-                "d",
-                5,
-                "q_6",
-                null,
-                "History"  // Added category
+                id = 6.toString(),
+                question = "Who is credited with inventing theater as we know it?",
+                answer_1 = "Shakespeare",
+                answer_2 = "Arthur Miller",
+                answer_3 = "Ashkouri",
+                answer_4 = "Ancient Greeks",
+                correct_answer = "d",
+                clickedAnswer = null,
+                score = 5,
+                pickPath = "q_6",
+                category = Category(
+                    id = "history_id",
+                    name = "History",
+                    description = "Test your knowledge of history",
+                    iconRes = null
+                )
             ),
             QuestionModel(
-                7.toString(),
-                "Which ocean is the largest?",
-                "Pacific",
-                "Atlantic",
-                "Indian",
-                "Arctic",
-                "a",
-                5,
-                "q_7",
-                null,
-                "Geography"  // Added category
+                id = 7.toString(),
+                question = "Which ocean is the largest?",
+                answer_1 = "Pacific",
+                answer_2 = "Atlantic",
+                answer_3 = "Indian",
+                answer_4 = "Arctic",
+                correct_answer = "a",
+                clickedAnswer = null,
+                score = 5,
+                pickPath = "q_7",
+                category = Category(
+                    id = "geography_id",
+                    name = "Geography",
+                    description = "Test your knowledge of geography",
+                    iconRes = null
+                )
             ),
             QuestionModel(
-                8.toString(),
-                "Which religions are most practiced?",
-                "Islam, Christianity, Judaism",
-                "Buddhism, Hinduism, Sikhism",
-                "Zoroastrianism, Brahmanism",
-                "Taoism, Shintoism",
-                "a",
-                5,
-                "q_8",
-                null,
-                "History"  // Added category
+                id = 8.toString(),
+                question = "Which religions are most practiced?",
+                answer_1 = "Islam, Christianity, Judaism",
+                answer_2 = "Buddhism, Hinduism, Sikhism",
+                answer_3 = "Zoroastrianism, Brahmanism",
+                answer_4 = "Taoism, Shintoism",
+                correct_answer = "a",
+                clickedAnswer = null,
+                score = 5,
+                pickPath = "q_8",
+                category = Category(
+                    id = "history_id",
+                    name = "History",
+                    description = "Test your knowledge of history",
+                    iconRes = null
+                )
             ),
             QuestionModel(
-                9.toString(),
-                "Which continent has the most independent countries?",
-                "Asia",
-                "Europe",
-                "Africa",
-                "Americas",
-                "c",
-                5,
-                "q_9",
-                null,
-                "Geography"  // Added category
+                id = 9.toString(),
+                question = "Which continent has the most independent countries?",
+                answer_1 = "Asia",
+                answer_2 = "Europe",
+                answer_3 = "Africa",
+                answer_4 = "Americas",
+                correct_answer = "c",
+                clickedAnswer = null,
+                score = 5,
+                pickPath = "q_9",
+                category = Category(
+                    id = "geography_id",
+                    name = "Geography",
+                    description = "Test your knowledge of geography",
+                    iconRes = null
+                )
             ),
             QuestionModel(
-                10.toString(),
-                "Which ocean has the greatest average depth?",
-                "Pacific",
-                "Atlantic",
-                "Indian",
-                "Southern",
-                "d",
-                5,
-                "q_10",
-                null,
-                "Geography"  // Added category
+                id = 10.toString(),
+                question = "Which ocean has the greatest average depth?",
+                answer_1 = "Pacific",
+                answer_2 = "Atlantic",
+                answer_3 = "Indian",
+                answer_4 = "Southern",
+                correct_answer = "d",
+                clickedAnswer = null,
+                score = 5,
+                pickPath = "q_10",
+                category = Category(
+                    id = "geography_id",
+                    name = "Geography",
+                    description = "Test your knowledge of geography",
+                    iconRes = null
+                )
             )
         )
+
 
         Log.d("MainActivity", "Created ${questions.size} questions")
         return questions

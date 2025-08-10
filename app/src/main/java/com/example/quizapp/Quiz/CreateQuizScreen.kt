@@ -14,6 +14,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,16 +37,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.quizapp.network.models.Category
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.quizapp.R
+import com.example.quizapp.network.models.CategoryViewModel
 import com.example.quizapp.network.models.QuestionRequest
 import com.example.quizapp.repository.QuizRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateQuizScreen(onBackClick: () -> Unit) {
-
+fun CreateQuizScreen(
+    onBackClick: () -> Unit,
+    categoryViewModel: CategoryViewModel = viewModel()
+) {
     // State for form fields
     var question by remember { mutableStateOf("") }
     var answer1 by remember { mutableStateOf("") }
@@ -52,13 +61,23 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
     var answer3 by remember { mutableStateOf("") }
     var answer4 by remember { mutableStateOf("") }
     var correctAnswer by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf<Category?>(null) }
+    var categoryDropdownExpanded by remember { mutableStateOf(false) }
+    var difficulty by remember { mutableStateOf("medium") }
+
+    // Get categories from ViewModel
+    val categories by categoryViewModel.categories.collectAsState()
+
+    // Fetch categories when screen loads
+    LaunchedEffect(Unit) {
+        categoryViewModel.fetchCategories()
+    }
 
     // State for UI
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
-    var isCreating by remember { mutableStateOf(false) } // New state for creation animation
+    var isCreating by remember { mutableStateOf(false) }
 
     val repository = remember { QuizRepository() }
     val scope = rememberCoroutineScope()
@@ -102,7 +121,6 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
         label = "creationPulse"
     )
 
-    // Floating animation for creation state
     val floatingOffset by animateFloatAsState(
         targetValue = if (isCreating) -10f else 0f,
         animationSpec = infiniteRepeatable(
@@ -175,7 +193,7 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Back",
                         tint = Color.White,
-                        modifier = Modifier.size(20.dp) // scale arrow nicely
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             },
@@ -225,6 +243,177 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
                 .offset(y = floatingOffset.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+
+            // Category Selection Card (Moved to top for better UX)
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(12.dp, RoundedCornerShape(20.dp))
+                    .animateContentSize()
+                    .then(
+                        if (isCreating) Modifier.scale(creationPulse * 0.98f) else Modifier
+                    ),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isCreating)
+                        surfaceColor.copy(alpha = 0.9f)
+                    else surfaceColor
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .background(
+                                    warningColor.copy(alpha = 0.1f),
+                                    CircleShape
+                                )
+                                .then(
+                                    if (isCreating) Modifier.rotate(creationRotation * 0.8f) else Modifier
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "🏷️",
+                                fontSize = 20.sp
+                            )
+                        }
+                        Column {
+                            Text(
+                                "Category",
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                            Text(
+                                "Select a category for your question",
+                                fontSize = 14.sp,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+
+                    // Category Dropdown
+                    ExposedDropdownMenuBox(
+                        expanded = categoryDropdownExpanded,
+                        onExpandedChange = { categoryDropdownExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            value = selectedCategory?.name ?: "",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Select Category", color = warningColor) },
+                            placeholder = { Text("Choose from available categories") },
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = if (categoryDropdownExpanded)
+                                        Icons.Filled.KeyboardArrowUp
+                                    else
+                                        Icons.Filled.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = warningColor
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = warningColor,
+                                unfocusedBorderColor = warningColor.copy(alpha = 0.5f),
+                                cursorColor = warningColor,
+                                focusedLabelColor = warningColor
+                            )
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = categoryDropdownExpanded,
+                            onDismissRequest = { categoryDropdownExpanded = false }
+                        ) {
+                            if (categories.isEmpty()) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            "Loading categories...",
+                                            color = Color.Gray
+                                        )
+                                    },
+                                    onClick = {}
+                                )
+                            } else {
+                                categories.forEach { category ->
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                Text(
+                                                    category.name,
+                                                    fontWeight = FontWeight.Medium
+                                                )
+                                                if (category.questionCount > 0) {
+                                                    Text(
+                                                        "(${category.questionCount} questions)",
+                                                        fontSize = 12.sp,
+                                                        color = Color.Gray
+                                                    )
+                                                }
+                                            }
+                                        },
+                                        onClick = {
+                                            selectedCategory = category
+                                            categoryDropdownExpanded = false
+                                            errorMessage = null
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Difficulty Selection
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            "Difficulty Level",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Gray
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            listOf("easy" to "Easy", "medium" to "Medium", "hard" to "Hard").forEach { (value, label) ->
+                                FilterChip(
+                                    selected = difficulty == value,
+                                    onClick = { difficulty = value },
+                                    label = {
+                                        Text(
+                                            label,
+                                            fontWeight = if (difficulty == value) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = warningColor.copy(alpha = 0.2f),
+                                        selectedLabelColor = warningColor
+                                    ),
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
             // Question Section Card
             Card(
@@ -293,7 +482,7 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
                         placeholder = { Text("What would you like to ask?") },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .focusRequester(questionFocusRequester), // Add focus requester
+                            .focusRequester(questionFocusRequester),
                         shape = RoundedCornerShape(16.dp),
                         minLines = 3,
                         keyboardOptions = KeyboardOptions(
@@ -347,7 +536,7 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
                 }
             }
 
-            // Answer Options Card
+            // Answer Options Card (rest remains the same)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -367,7 +556,6 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
                     modifier = Modifier.padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Header
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -404,7 +592,6 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
                         }
                     }
 
-                    // Answer fields
                     EnhancedAnswerField("A", answer1, { answer1 = it }, correctAnswer, primaryColor, successColor, isCreating)
                     EnhancedAnswerField("B", answer2, { answer2 = it }, correctAnswer, primaryColor, successColor, isCreating)
                     EnhancedAnswerField("C", answer3, { answer3 = it }, correctAnswer, primaryColor, successColor, isCreating)
@@ -412,7 +599,7 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
                 }
             }
 
-            // Correct Answer Selection Card
+            // Correct Answer Selection Card (rest remains the same)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -468,7 +655,6 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
                         }
                     }
 
-                    // Correct answer selector
                     CorrectAnswerSelector(
                         options = listOf(
                             "A" to answer1,
@@ -488,79 +674,7 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
                 }
             }
 
-            // Category Card
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(12.dp, RoundedCornerShape(20.dp))
-                    .animateContentSize()
-                    .then(
-                        if (isCreating) Modifier.scale(creationPulse * 0.98f) else Modifier
-                    ),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (isCreating)
-                        surfaceColor.copy(alpha = 0.9f)
-                    else surfaceColor
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .background(
-                                    warningColor.copy(alpha = 0.1f),
-                                    CircleShape
-                                )
-                                .then(
-                                    if (isCreating) Modifier.rotate(creationRotation * 0.8f) else Modifier
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                "🏷️",
-                                fontSize = 20.sp
-                            )
-                        }
-                        Column {
-                            Text(
-                                "Category",
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
-                            Text(
-                                "Optional - helps organize questions",
-                                fontSize = 14.sp,
-                                color = Color.Gray
-                            )
-                        }
-                    }
-
-                    OutlinedTextField(
-                        value = category,
-                        onValueChange = { category = it },
-                        label = { Text("Category (Optional)", color = warningColor) },
-                        placeholder = { Text("e.g., Science, History, Math...") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = warningColor,
-                            cursorColor = warningColor,
-                            focusedLabelColor = warningColor
-                        )
-                    )
-                }
-            }
-
-            // Error/Success Messages
+            // Error/Success Messages (rest remains the same)
             AnimatedVisibility(
                 visible = errorMessage != null || successMessage != null,
                 enter = slideInVertically(
@@ -638,6 +752,12 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
                             return@Button
                         }
 
+                        if (selectedCategory == null) {
+                            errorMessage = "Please select a category"
+                            buttonPressed = false
+                            return@Button
+                        }
+
                         val answers = listOf(answer1, answer2, answer3, answer4)
                         if (!answers.contains(correctAnswer)) {
                             errorMessage = "Correct answer must match one of the options exactly"
@@ -660,7 +780,9 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
                                 answer_4 = answer4,
                                 correct_answer = correctAnswer,
                                 score = 10,
-                                category = category.ifBlank { null }
+                                category = selectedCategory?.name, // Send category name
+                                categoryId = selectedCategory?.id, // Or send category ID
+                                difficulty = difficulty
                             )
 
                             Log.d("CreateQuizScreen", "Creating question: $questionRequest")
@@ -681,7 +803,8 @@ fun CreateQuizScreen(onBackClick: () -> Unit) {
                                     answer3 = ""
                                     answer4 = ""
                                     correctAnswer = ""
-                                    category = ""
+                                    selectedCategory = null
+                                    difficulty = "medium"
                                     successMessage = null
 
                                     // Focus back to question field after clearing

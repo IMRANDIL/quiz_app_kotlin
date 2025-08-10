@@ -2,7 +2,6 @@ package com.example.quizapp.network.models
 
 import com.google.gson.annotations.SerializedName
 
-// This represents the data MongoDB sends BACK to us after creating/getting a question
 data class QuestionResponse(
     @SerializedName("_id")
     val _id: String,              // MongoDB's unique ID for the question
@@ -13,7 +12,7 @@ data class QuestionResponse(
     val answer_4: String,
     val correct_answer: String,
     val score: Int,
-    val category: String?,
+    val category: Category?, // Changed to expect a CategoryResponse object
     @SerializedName("createdAt")
     val createdAt: String,        // When the question was created
     @SerializedName("updatedAt")
@@ -36,11 +35,13 @@ data class QuestionResponse(
 
     // Helper function to get formatted category (capitalize first letter)
     fun getFormattedCategory(): String {
-        return category?.replaceFirstChar {
+        return category?.name?.replaceFirstChar {
             if (it.isLowerCase()) it.titlecase() else it.toString()
         } ?: "General"
     }
 }
+
+
 
 // This wraps all responses from MongoDB (success or error)
 data class ApiResponse<T>(
@@ -56,5 +57,3 @@ data class ValidationError(
     val message: String,
     val value: String?
 )
-
-// This represents the data we send TO MongoDB when creating a question

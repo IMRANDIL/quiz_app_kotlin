@@ -1,6 +1,7 @@
 package com.example.quizapp.Question.Model
 
 import android.os.Parcelable
+import com.example.quizapp.network.models.Category
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -15,5 +16,5 @@ data class QuestionModel(
     val score: Int,
     val pickPath: String?,
     val clickedAnswer: String?,
-    val category: String? = null  // ✅ Added category field
+    val category: Category? // ✅ Added category field
 ): Parcelable
