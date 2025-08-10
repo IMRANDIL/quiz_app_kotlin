@@ -229,20 +229,22 @@ private fun calculateDetailedScore(questions: List<QuestionModel>): Triple<Int, 
     var totalPossibleScore = 0
 
     questions.forEach { question ->
-        // Add each question's score to total possible score
-        totalPossibleScore += question.score
+        // Each question is worth 10 points (from your DB)
+        totalPossibleScore += question.score  // This should add 10 for each question
 
         // Check if answer is correct
         if (question.clickedAnswer == question.correct_answer) {
-            totalScore += question.score
+            totalScore += question.score  // This should add 10 for each correct answer
             correctAnswers++
         }
     }
 
-    Log.d("QuestionScreen", "Score Calculation:")
-    Log.d("QuestionScreen", "Correct Answers: $correctAnswers/${questions.size}")
-    Log.d("QuestionScreen", "Score Earned: $totalScore")
-    Log.d("QuestionScreen", "Total Possible Score: $totalPossibleScore")
+    // Log to debug
+    Log.d("Score", "Questions: ${questions.size}")
+    Log.d("Score", "Correct: $correctAnswers")
+    Log.d("Score", "Score per question: ${questions.firstOrNull()?.score}")
+    Log.d("Score", "Total Score: $totalScore")
+    Log.d("Score", "Max Possible: $totalPossibleScore")
 
     return Triple(totalScore, correctAnswers, totalPossibleScore)
 }
