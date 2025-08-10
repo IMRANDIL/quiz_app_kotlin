@@ -21,6 +21,7 @@ class ScoreActivity : AppCompatActivity() {
         val correctAnswers = intent.getIntExtra("correctAnswers", 0)
         val totalPossibleScore = intent.getIntExtra("totalPossibleScore", 100)
         val category = intent.getStringExtra("category")
+        val timeSpent = intent.getIntExtra("timeSpent", 0) // Get time spent
 
         Log.d("ScoreActivity", "Received:")
         Log.d("ScoreActivity", "Score: $score")
@@ -28,6 +29,7 @@ class ScoreActivity : AppCompatActivity() {
         Log.d("ScoreActivity", "Correct Answers: $correctAnswers")
         Log.d("ScoreActivity", "Total Possible Score: $totalPossibleScore")
         Log.d("ScoreActivity", "Category: $category")
+        Log.d("ScoreActivity", "Time Spent: $timeSpent seconds")
 
         setContent {
             ScoreScreen(
@@ -35,7 +37,8 @@ class ScoreActivity : AppCompatActivity() {
                 totalQuestions = totalQuestions,
                 correctAnswers = correctAnswers,
                 totalPossibleScore = totalPossibleScore,
-                category = category
+                category = category,
+                timeSpent = timeSpent // Pass time spent
             ) {
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()

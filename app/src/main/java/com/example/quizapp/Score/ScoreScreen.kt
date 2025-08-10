@@ -1,38 +1,13 @@
 package com.example.quizapp.Score
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -41,7 +16,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +33,7 @@ fun ScoreScreen(
     correctAnswers: Int = 0,
     totalPossibleScore: Int = 100,
     category: String? = null,
+    timeSpent: Int = 0, // Time spent in seconds
     onBackToMain: () -> Unit = {}
 ) {
     // Animation states
@@ -95,7 +70,7 @@ fun ScoreScreen(
 
     LaunchedEffect(Unit) {
         startAnimation = true
-        delay(800) // Wait for trophy animation
+        delay(800)
         animatedScore.animateTo(
             targetValue = score.toFloat(),
             animationSpec = tween(1500, easing = FastOutSlowInEasing)
@@ -107,6 +82,19 @@ fun ScoreScreen(
         (score.toFloat() / totalPossibleScore.toFloat()) * 100
     } else {
         0f
+    }
+
+    // Format time display
+    val minutes = timeSpent / 60
+    val seconds = timeSpent % 60
+    val timeDisplay = String.format("%02d:%02d", minutes, seconds)
+
+    // Time bonus message based on time spent
+    val timeBonus = when {
+        timeSpent <= 120 -> "⚡ Speed Bonus!" // Under 2 minutes
+        timeSpent <= 180 -> "⏱️ Good Timing!" // Under 3 minutes
+        timeSpent <= 240 -> "⏰ Fair Time" // Under 4 minutes
+        else -> "🐢 Completed" // Over 4 minutes
     }
 
     val performanceMessage = when {
@@ -148,6 +136,18 @@ fun ScoreScreen(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .alpha(contentAlpha)
+                    .padding(bottom = 8.dp),
+                textAlign = TextAlign.Center
+            )
+
+            // Time bonus message
+            Text(
+                text = timeBonus,
+                color = colorResource(id = R.color.purple),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .alpha(contentAlpha)
                     .padding(bottom = 16.dp),
                 textAlign = TextAlign.Center
             )
@@ -159,7 +159,7 @@ fun ScoreScreen(
                 // Glow effect background
                 Box(
                     modifier = Modifier
-                        .size(320.dp)
+                        .size(240.dp)
                         .scale(trophyScale * 0.9f)
                         .background(
                             brush = Brush.radialGradient(
@@ -177,14 +177,14 @@ fun ScoreScreen(
                     painter = painterResource(id = R.drawable.trophy),
                     contentDescription = "Trophy",
                     modifier = Modifier
-                        .size(280.dp)
+                        .size(200.dp)
                         .scale(trophyScale)
                         .rotate(trophyRotation),
                     contentScale = ContentScale.Fit
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Score card
             Card(
@@ -201,17 +201,42 @@ fun ScoreScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(24.dp)
                 ) {
-                    // Category name if available
-                    if (category != null) {
-                        Text(
-                            text = category.uppercase(),
-                            color = colorResource(id = R.color.purple),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
+                    // Category and Time row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        if (category != null) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "📚",
+                                    fontSize = 20.sp
+                                )
+                                Text(
+                                    text = category.uppercase(),
+                                    color = colorResource(id = R.color.purple),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.sp
+                                )
+                            }
+                        }
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "⏱️",
+                                fontSize = 20.sp
+                            )
+                            Text(
+                                text = timeDisplay,
+                                color = colorResource(id = R.color.navy_blue),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
                         text = "YOUR SCORE",
@@ -272,81 +297,144 @@ fun ScoreScreen(
                         modifier = Modifier.padding(top = 8.dp)
                     )
 
-                    // Additional stats
-                    Spacer(modifier = Modifier.height(16.dp))
+                    // Stats row
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
+                        // Correct answers
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(
-                                text = "$correctAnswers",
-                                color = performanceColor,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
+                                ),
+                                shape = CircleShape,
+                                modifier = Modifier.size(50.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "$correctAnswers",
+                                        color = Color(0xFF4CAF50),
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Correct",
                                 color = Color.Gray,
-                                fontSize = 12.sp
+                                fontSize = 11.sp
                             )
                         }
 
-                        Box(
-                            modifier = Modifier
-                                .width(1.dp)
-                                .height(40.dp)
-                                .background(Color.Gray.copy(alpha = 0.3f))
-                        )
-
+                        // Wrong answers
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(
-                                text = "${totalQuestions - correctAnswers}",
-                                color = Color.Gray,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color.Red.copy(alpha = 0.1f)
+                                ),
+                                shape = CircleShape,
+                                modifier = Modifier.size(50.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "${totalQuestions - correctAnswers}",
+                                        color = Color.Red,
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Wrong",
                                 color = Color.Gray,
-                                fontSize = 12.sp
+                                fontSize = 11.sp
                             )
                         }
 
-                        Box(
-                            modifier = Modifier
-                                .width(1.dp)
-                                .height(40.dp)
-                                .background(Color.Gray.copy(alpha = 0.3f))
-                        )
-
+                        // Total questions
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(
-                                text = "$totalQuestions",
-                                color = colorResource(id = R.color.navy_blue),
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = colorResource(id = R.color.purple).copy(alpha = 0.1f)
+                                ),
+                                shape = CircleShape,
+                                modifier = Modifier.size(50.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "$totalQuestions",
+                                        color = colorResource(id = R.color.purple),
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Total",
                                 color = Color.Gray,
-                                fontSize = 12.sp
+                                fontSize = 11.sp
+                            )
+                        }
+
+                        // Average time per question
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = colorResource(id = R.color.orange).copy(alpha = 0.1f)
+                                ),
+                                shape = CircleShape,
+                                modifier = Modifier.size(50.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    val avgTime = if (totalQuestions > 0) timeSpent / totalQuestions else 0
+                                    Text(
+                                        text = "${avgTime}s",
+                                        color = colorResource(id = R.color.orange),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Avg/Q",
+                                color = Color.Gray,
+                                fontSize = 11.sp
                             )
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Action button (centered)
+            // Action button
             Button(
                 onClick = onBackToMain,
                 modifier = Modifier
@@ -379,6 +467,7 @@ fun ScoreScreenPreview() {
         correctAnswers = 4,
         totalPossibleScore = 100,
         category = "Science",
+        timeSpent = 187, // 3 minutes 7 seconds
         onBackToMain = {}
     )
 }

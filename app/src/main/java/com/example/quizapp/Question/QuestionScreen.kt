@@ -3,26 +3,12 @@ package com.example.quizapp.Question
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,14 +19,12 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quizapp.Question.Model.QuestionModel
 import com.example.quizapp.Question.Model.QuestionUiState
 import com.example.quizapp.Question.components.AnswerItem
 import com.example.quizapp.R
-import com.example.quizapp.network.models.Category
 import kotlinx.coroutines.delay
 
 @Composable
@@ -48,7 +32,7 @@ fun QuestionScreen(
     questions: List<QuestionModel>,
     categoryName: String? = null,
     categoryId: String? = null,
-    onFinish: (finalScore: Int, correctAnswers: Int, totalPossibleScore: Int) -> Unit = { _, _, _ -> },
+    onFinish: (finalScore: Int, correctAnswers: Int, totalPossibleScore: Int, timeSpent: Int) -> Unit = { _, _, _, _ -> },
     onBackClick: () -> Unit = {},
 ) {
     var state by remember {
@@ -61,6 +45,35 @@ fun QuestionScreen(
 
     var selectedAnswer by remember(state.currentIndex) {
         mutableStateOf(currentQuestion.clickedAnswer)
+    }
+
+    // Timer states
+    val totalTimeInSeconds = 5 * 60 // 5 minutes = 300 seconds
+    var timeRemaining by remember { mutableStateOf(totalTimeInSeconds) }
+    var isTimerRunning by remember { mutableStateOf(true) }
+    var showTimeWarning by remember { mutableStateOf(false) }
+
+    // Calculate time spent
+    val timeSpent = totalTimeInSeconds - timeRemaining
+
+    // Timer effect
+    LaunchedEffect(isTimerRunning) {
+        while (isTimerRunning && timeRemaining > 0) {
+            delay(1000) // Wait 1 second
+            timeRemaining--
+
+            // Show warning when less than 30 seconds remaining
+            if (timeRemaining <= 30 && !showTimeWarning) {
+                showTimeWarning = true
+            }
+
+            // Auto-submit when time is up
+            if (timeRemaining == 0) {
+                isTimerRunning = false
+                val (finalScore, correctAnswers, totalPossibleScore) = calculateDetailedScore(state.questions)
+                onFinish(finalScore, correctAnswers, totalPossibleScore, timeSpent)
+            }
+        }
     }
 
     val context = LocalContext.current
@@ -76,6 +89,18 @@ fun QuestionScreen(
         }
     }
 
+    // Format time display
+    val minutes = timeRemaining / 60
+    val seconds = timeRemaining % 60
+    val timeDisplay = String.format("%02d:%02d", minutes, seconds)
+
+    // Timer color based on remaining time
+    val timerColor = when {
+        timeRemaining <= 10 -> Color.Red
+        timeRemaining <= 30 -> colorResource(id = R.color.orange)
+        else -> colorResource(id = R.color.navy_blue)
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -88,7 +113,10 @@ fun QuestionScreen(
                     .padding(all = 24.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { onBackClick() }) {
+                IconButton(onClick = {
+                    isTimerRunning = false // Stop timer when going back
+                    onBackClick()
+                }) {
                     Icon(
                         painter = painterResource(id = R.drawable.back),
                         contentDescription = "Back"
@@ -96,15 +124,71 @@ fun QuestionScreen(
                 }
                 Spacer(modifier = Modifier.width(width = 16.dp))
                 Text(
-                    text = if (categoryId != null) {
-                        "$categoryId Quiz"
+                    text = if (categoryName != null) {
+                        "$categoryName Quiz"
                     } else {
                         "Single Player"
                     },
                     fontSize = 20.sp,
                     color = colorResource(id = R.color.navy_blue),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
                 )
+
+                // Timer display
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (timeRemaining <= 30)
+                            timerColor.copy(alpha = 0.1f)
+                        else
+                            Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "⏱",
+                            fontSize = 16.sp,
+                            color = timerColor
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = timeDisplay,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = timerColor
+                        )
+                    }
+                }
+            }
+        }
+
+        // Warning message for low time
+        if (showTimeWarning && timeRemaining > 0 && timeRemaining <= 30) {
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.Red.copy(alpha = 0.1f)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "⚠️ Time is running out! $timeRemaining seconds remaining",
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(12.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
 
@@ -190,7 +274,7 @@ fun QuestionScreen(
                 isWrong = isWrong,
                 isSelected = selectedAnswer != null
             ) {
-                if (selectedAnswer == null) {
+                if (selectedAnswer == null && isTimerRunning) {
                     val updatedQuestions = state.questions.toMutableList()
                     updatedQuestions[state.currentIndex] = updatedQuestions[state.currentIndex].copy(
                         clickedAnswer = answerLetter
@@ -212,10 +296,12 @@ fun QuestionScreen(
             delay(400)
 
             if (state.currentIndex == state.questions.size - 1) {
-                // Calculate detailed results
+                // Last question - stop timer and finish
+                isTimerRunning = false
                 val (finalScore, correctAnswers, totalPossibleScore) = calculateDetailedScore(state.questions)
-                onFinish(finalScore, correctAnswers, totalPossibleScore)
+                onFinish(finalScore, correctAnswers, totalPossibleScore, timeSpent)
             } else {
+                // Move to next question
                 state = state.copy(currentIndex = state.currentIndex + 1)
             }
         }
@@ -229,12 +315,12 @@ private fun calculateDetailedScore(questions: List<QuestionModel>): Triple<Int, 
     var totalPossibleScore = 0
 
     questions.forEach { question ->
-        // Each question is worth 10 points (from your DB)
-        totalPossibleScore += question.score  // This should add 10 for each question
+        // Each question is worth its score value (typically 10 points from DB)
+        totalPossibleScore += question.score
 
         // Check if answer is correct
         if (question.clickedAnswer == question.correct_answer) {
-            totalScore += question.score  // This should add 10 for each correct answer
+            totalScore += question.score
             correctAnswers++
         }
     }

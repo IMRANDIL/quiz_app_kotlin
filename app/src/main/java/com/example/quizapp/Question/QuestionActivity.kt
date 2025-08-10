@@ -33,7 +33,7 @@ class QuestionActivity : ComponentActivity() {
     private lateinit var repository: QuizRepository
     private var categoryName: String? = null
     private var categoryId: String? = null
-    private var questionScore: Int? = 10
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.statusBarColor = ContextCompat.getColor(this, R.color.grey)
@@ -41,9 +41,12 @@ class QuestionActivity : ComponentActivity() {
 
         repository = QuizRepository()
 
-        // Get category information from intent
-        categoryName = intent.getStringExtra("categoryId")
-        categoryId = intent.getStringExtra("category")
+        // FIX: Correctly map the intent parameters
+        // "category" contains the category NAME (e.g., "Science")
+        // "categoryId" contains the category ID (e.g., "1")
+        categoryName = intent.getStringExtra("category")      // This is the category NAME
+        categoryId = intent.getStringExtra("categoryId")      // This is the category ID
+
         val categoryObject = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra("categoryObject", Category::class.java)
         } else {
@@ -51,7 +54,7 @@ class QuestionActivity : ComponentActivity() {
             intent.getParcelableExtra<Category>("categoryObject")
         }
 
-        Log.d("QuestionActivity", "Category: $categoryName, ID: $categoryId")
+        Log.d("QuestionActivity", "Category Name: $categoryName, Category ID: $categoryId")
 
         // Check if questions were passed directly (from MainActivity)
         val receivedList = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
@@ -65,23 +68,26 @@ class QuestionActivity : ComponentActivity() {
             // If questions were passed directly, use them
             Log.d("QuestionActivity", "Using ${receivedList.size} questions from intent")
 
-            // If category is specified, filter the questions
-            val filteredQuestions = if (categoryName != null) {
+            // Filter by category ID if specified
+            val filteredQuestions = if (categoryId != null) {
                 receivedList.filter { question ->
-                    question.category?.name?.equals(categoryName, ignoreCase = true) == true
+                    question.category?.id?.equals(categoryId, ignoreCase = true) == true
                 }
             } else {
                 receivedList
             }
 
             if (filteredQuestions.isNotEmpty()) {
-                startQuizWithQuestions(ArrayList(filteredQuestions))
+                // Limit to 10 questions for 5-minute timer
+                val limitedQuestions = filteredQuestions.take(10)
+                startQuizWithQuestions(ArrayList(limitedQuestions))
             } else {
                 showNoQuestionsForCategory()
             }
-        } else if (categoryName != null) {
+        } else if (categoryId != null) {
             // Load questions for the specific category from API
-            loadQuestionsForCategory(categoryName!!)
+            // Use categoryName for the API call
+            loadQuestionsForCategory(categoryId!!)
         } else {
             // No questions and no category - load all questions
             loadAllQuestions()
@@ -108,7 +114,7 @@ class QuestionActivity : ComponentActivity() {
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Loading $categoryId questions...",
+                            text = "Loading $categoryName questions...",  // Use category name for display
                             fontSize = 16.sp,
                             color = colorResource(id = R.color.navy_blue),
                             fontWeight = FontWeight.Medium
@@ -122,14 +128,17 @@ class QuestionActivity : ComponentActivity() {
         lifecycleScope.launch {
             try {
                 repository.getAllQuestions(
-                    category = category,
-                    limit = 50
+                    category = category,  // Pass the category NAME to the API
+                    limit = 10 // Limit to 10 questions for 5-minute timer
                 ).onSuccess { questionList ->
-                    Log.d("QuestionActivity", "Loaded ${questionList.size} questions for $categoryId")
+                    Log.d("QuestionActivity", "Loaded ${questionList.size} questions for $category")
 
                     if (questionList.isNotEmpty()) {
+                        // Take only first 10 questions if more are returned
+                        val limitedQuestions = questionList.take(10)
+
                         // Convert API response to QuestionModel
-                        val questions = questionList.map { apiQuestion ->
+                        val questions = limitedQuestions.map { apiQuestion ->
                             QuestionModel(
                                 id = apiQuestion._id,
                                 question = apiQuestion.question,
@@ -196,11 +205,11 @@ class QuestionActivity : ComponentActivity() {
         }
 
         lifecycleScope.launch {
-            repository.getAllQuestions(limit = 50)
+            repository.getAllQuestions(limit = 10) // Limit to 10 questions
                 .onSuccess { questionList ->
                     val questions = questionList.map { apiQuestion ->
                         QuestionModel(
-                            id = apiQuestion._id, // or apiQuestion._id
+                            id = apiQuestion._id,
                             question = apiQuestion.question,
                             answer_1 = apiQuestion.answer_1,
                             answer_2 = apiQuestion.answer_2,
@@ -237,21 +246,23 @@ class QuestionActivity : ComponentActivity() {
             QuizAppTheme {
                 QuestionScreen(
                     questions = questions,
-                    categoryName = categoryName,
-                    categoryId = categoryId,
+                    categoryName = categoryName,  // Pass the correct category name
+                    categoryId = categoryId,      // Pass the correct category ID
                     onBackClick = { finish() },
-                    onFinish = { finalScore, correctAnswers, totalPossibleScore ->
+                    onFinish = { finalScore, correctAnswers, totalPossibleScore, timeSpent ->
                         Log.d("QuestionActivity", "Quiz finished:")
                         Log.d("QuestionActivity", "Final Score: $finalScore")
                         Log.d("QuestionActivity", "Correct Answers: $correctAnswers")
                         Log.d("QuestionActivity", "Total Possible Score: $totalPossibleScore")
+                        Log.d("QuestionActivity", "Time Spent: $timeSpent seconds")
 
                         val intent = Intent(this@QuestionActivity, ScoreActivity::class.java).apply {
                             putExtra("score", finalScore)
                             putExtra("totalQuestions", questions.size)
                             putExtra("correctAnswers", correctAnswers)
                             putExtra("totalPossibleScore", totalPossibleScore)
-                            putExtra("category", categoryId ?: categoryName)
+                            putExtra("category", categoryName)  // Pass category name
+                            putExtra("timeSpent", timeSpent)
                         }
                         startActivity(intent)
                         finish()
@@ -260,7 +271,6 @@ class QuestionActivity : ComponentActivity() {
             }
         }
     }
-
 
     private fun showNoQuestionsForCategory() {
         setContent {
@@ -289,8 +299,8 @@ class QuestionActivity : ComponentActivity() {
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = if (categoryId != null)
-                                "No questions found for $categoryId category"
+                            text = if (categoryName != null)
+                                "No questions found for $categoryName category"
                             else
                                 "No questions available at the moment",
                             fontSize = 14.sp,
@@ -367,8 +377,8 @@ class QuestionActivity : ComponentActivity() {
                             Button(
                                 onClick = {
                                     // Retry loading
-                                    if (categoryName != null) {
-                                        loadQuestionsForCategory(categoryName!!)
+                                    if (categoryId != null) {
+                                        loadQuestionsForCategory(categoryId!!)
                                     } else {
                                         loadAllQuestions()
                                     }
