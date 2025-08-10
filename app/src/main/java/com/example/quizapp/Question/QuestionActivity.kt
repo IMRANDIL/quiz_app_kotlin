@@ -41,7 +41,7 @@ class QuestionActivity : ComponentActivity() {
         repository = QuizRepository()
 
         // Get category information from intent
-        categoryName = intent.getStringExtra("category")
+        categoryName = intent.getStringExtra("categoryId")
         val categoryId = intent.getStringExtra("categoryId")
         val categoryObject = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra("categoryObject", Category::class.java)

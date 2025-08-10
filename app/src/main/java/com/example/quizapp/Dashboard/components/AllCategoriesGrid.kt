@@ -61,7 +61,7 @@ fun AllCategoriesGrid(
     ) {
         itemsIndexed(
             items = categories,
-            key = { _, category -> category.name }
+            key = { _, category -> category.id }
         ) { index, category ->
             CategoryGridCard(
                 category = category,
