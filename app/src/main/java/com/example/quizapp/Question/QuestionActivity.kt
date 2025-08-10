@@ -33,6 +33,7 @@ class QuestionActivity : ComponentActivity() {
     private lateinit var repository: QuizRepository
     private var categoryName: String? = null
     private var categoryId: String? = null
+    private var questionScore: Int? = 10
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.statusBarColor = ContextCompat.getColor(this, R.color.grey)
@@ -239,11 +240,18 @@ class QuestionActivity : ComponentActivity() {
                     categoryName = categoryName,
                     categoryId = categoryId,
                     onBackClick = { finish() },
-                    onFinish = { finalScore ->
+                    onFinish = { finalScore, correctAnswers, totalPossibleScore ->
+                        Log.d("QuestionActivity", "Quiz finished:")
+                        Log.d("QuestionActivity", "Final Score: $finalScore")
+                        Log.d("QuestionActivity", "Correct Answers: $correctAnswers")
+                        Log.d("QuestionActivity", "Total Possible Score: $totalPossibleScore")
+
                         val intent = Intent(this@QuestionActivity, ScoreActivity::class.java).apply {
                             putExtra("score", finalScore)
                             putExtra("totalQuestions", questions.size)
-                            putExtra("category", categoryName)
+                            putExtra("correctAnswers", correctAnswers)
+                            putExtra("totalPossibleScore", totalPossibleScore)
+                            putExtra("category", categoryId ?: categoryName)
                         }
                         startActivity(intent)
                         finish()
@@ -252,6 +260,7 @@ class QuestionActivity : ComponentActivity() {
             }
         }
     }
+
 
     private fun showNoQuestionsForCategory() {
         setContent {
@@ -358,8 +367,8 @@ class QuestionActivity : ComponentActivity() {
                             Button(
                                 onClick = {
                                     // Retry loading
-                                    if (categoryId != null) {
-                                        loadQuestionsForCategory(categoryId!!)
+                                    if (categoryName != null) {
+                                        loadQuestionsForCategory(categoryName!!)
                                     } else {
                                         loadAllQuestions()
                                     }

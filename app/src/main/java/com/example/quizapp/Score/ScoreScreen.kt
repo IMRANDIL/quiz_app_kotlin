@@ -55,7 +55,10 @@ import kotlinx.coroutines.delay
 @Composable
 fun ScoreScreen(
     score: Int,
-    totalQuestions: Int = 10, // Default value, pass actual total
+    totalQuestions: Int = 10,
+    correctAnswers: Int = 0,
+    totalPossibleScore: Int = 100,
+    category: String? = null,
     onBackToMain: () -> Unit = {}
 ) {
     // Animation states
@@ -99,8 +102,13 @@ fun ScoreScreen(
         )
     }
 
-    // Calculate performance
-    val percentage = (score.toFloat() / (totalQuestions * 5)) * 100 // Assuming 10 points per question
+    // Calculate percentage based on actual score vs total possible score
+    val percentage = if (totalPossibleScore > 0) {
+        (score.toFloat() / totalPossibleScore.toFloat()) * 100
+    } else {
+        0f
+    }
+
     val performanceMessage = when {
         percentage >= 90 -> "🎉 EXCELLENT!"
         percentage >= 70 -> "🌟 GREAT JOB!"
@@ -193,6 +201,18 @@ fun ScoreScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(24.dp)
                 ) {
+                    // Category name if available
+                    if (category != null) {
+                        Text(
+                            text = category.uppercase(),
+                            color = colorResource(id = R.color.purple),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+
                     Text(
                         text = "YOUR SCORE",
                         color = colorResource(id = R.color.navy_blue),
@@ -210,7 +230,7 @@ fun ScoreScreen(
                     )
 
                     Text(
-                        text = "out of ${totalQuestions * 5}",
+                        text = "out of $totalPossibleScore",
                         color = Color.Gray,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Normal
@@ -251,6 +271,76 @@ fun ScoreScreen(
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 8.dp)
                     )
+
+                    // Additional stats
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "$correctAnswers",
+                                color = performanceColor,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Correct",
+                                color = Color.Gray,
+                                fontSize = 12.sp
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .width(1.dp)
+                                .height(40.dp)
+                                .background(Color.Gray.copy(alpha = 0.3f))
+                        )
+
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "${totalQuestions - correctAnswers}",
+                                color = Color.Gray,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Wrong",
+                                color = Color.Gray,
+                                fontSize = 12.sp
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .width(1.dp)
+                                .height(40.dp)
+                                .background(Color.Gray.copy(alpha = 0.3f))
+                        )
+
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "$totalQuestions",
+                                color = colorResource(id = R.color.navy_blue),
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Total",
+                                color = Color.Gray,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
                 }
             }
 
@@ -284,8 +374,11 @@ fun ScoreScreen(
 @Composable
 fun ScoreScreenPreview() {
     ScoreScreen(
-        score = 85,
+        score = 45,
         totalQuestions = 10,
+        correctAnswers = 4,
+        totalPossibleScore = 100,
+        category = "Science",
         onBackToMain = {}
     )
 }

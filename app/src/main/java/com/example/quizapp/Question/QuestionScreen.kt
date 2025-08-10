@@ -1,5 +1,6 @@
 package com.example.quizapp.Question
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -45,9 +46,9 @@ import kotlinx.coroutines.delay
 @Composable
 fun QuestionScreen(
     questions: List<QuestionModel>,
-    categoryName: String? = null, // Add category parameter
+    categoryName: String? = null,
     categoryId: String? = null,
-    onFinish: (finalScore: Int) -> Unit = {},
+    onFinish: (finalScore: Int, correctAnswers: Int, totalPossibleScore: Int) -> Unit = { _, _, _ -> },
     onBackClick: () -> Unit = {},
 ) {
     var state by remember {
@@ -58,7 +59,6 @@ fun QuestionScreen(
 
     val currentQuestion = state.questions[state.currentIndex]
 
-    // ✅ Fix: Properly sync selectedAnswer with current question's clickedAnswer
     var selectedAnswer by remember(state.currentIndex) {
         mutableStateOf(currentQuestion.clickedAnswer)
     }
@@ -72,7 +72,7 @@ fun QuestionScreen(
                 context.packageName
             )
         } else {
-            0 // Return 0 if no image path
+            0
         }
     }
 
@@ -121,6 +121,13 @@ fun QuestionScreen(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
+                // Show points for this question
+                Text(
+                    text = "${currentQuestion.score} pts",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = colorResource(id = R.color.orange)
+                )
             }
         }
 
@@ -150,7 +157,6 @@ fun QuestionScreen(
             )
         }
 
-        // Only show image if it exists
         if (imageResId != 0 && currentQuestion.pickPath != null) {
             item {
                 Image(
@@ -184,9 +190,7 @@ fun QuestionScreen(
                 isWrong = isWrong,
                 isSelected = selectedAnswer != null
             ) {
-                // ✅ Only allow selection if no answer is selected yet
                 if (selectedAnswer == null) {
-                    // ✅ Update the question's clicked answer
                     val updatedQuestions = state.questions.toMutableList()
                     updatedQuestions[state.currentIndex] = updatedQuestions[state.currentIndex].copy(
                         clickedAnswer = answerLetter
@@ -203,59 +207,42 @@ fun QuestionScreen(
         }
     }
 
-    // ✅ Auto-advance effect - triggers when an answer is selected
     LaunchedEffect(selectedAnswer) {
         if (selectedAnswer != null) {
-            delay(400) // Wait 400ms to show correct/wrong answer
+            delay(400)
 
             if (state.currentIndex == state.questions.size - 1) {
-                // Last question - finish quiz
-                val finalScore = calculateFinalScore(state.questions)
-                onFinish(finalScore)
+                // Calculate detailed results
+                val (finalScore, correctAnswers, totalPossibleScore) = calculateDetailedScore(state.questions)
+                onFinish(finalScore, correctAnswers, totalPossibleScore)
             } else {
-                // Move to next question
                 state = state.copy(currentIndex = state.currentIndex + 1)
             }
         }
     }
 }
 
-// ✅ Helper function to calculate final score
-private fun calculateFinalScore(questions: List<QuestionModel>): Int {
-    return questions.sumOf { question ->
+// Updated helper function that returns all needed values
+private fun calculateDetailedScore(questions: List<QuestionModel>): Triple<Int, Int, Int> {
+    var totalScore = 0
+    var correctAnswers = 0
+    var totalPossibleScore = 0
+
+    questions.forEach { question ->
+        // Add each question's score to total possible score
+        totalPossibleScore += question.score
+
+        // Check if answer is correct
         if (question.clickedAnswer == question.correct_answer) {
-            question.score
-        } else {
-            0
+            totalScore += question.score
+            correctAnswers++
         }
     }
-}
 
-@Preview
-@Composable
-fun QuestionScreenPreview() {
-    val questions = listOf(
-        QuestionModel(
-            id = "1",
-            question = "What is the capital of France?",
-            answer_1 = "Paris",
-            answer_2 = "London",
-            answer_3 = "Berlin",
-            answer_4 = "Madrid",
-            correct_answer = "a",
-            score = 10,
-            pickPath = "q_1",
-            clickedAnswer = null,
-            category = Category(
-                id = "geography_id",
-                name = "Geography",
-                description = "Test your knowledge of geography",
-                iconRes = null
-            )
-        )
-    )
-    QuestionScreen(
-        questions = questions,
-        categoryName = "Geography"
-    )
+    Log.d("QuestionScreen", "Score Calculation:")
+    Log.d("QuestionScreen", "Correct Answers: $correctAnswers/${questions.size}")
+    Log.d("QuestionScreen", "Score Earned: $totalScore")
+    Log.d("QuestionScreen", "Total Possible Score: $totalPossibleScore")
+
+    return Triple(totalScore, correctAnswers, totalPossibleScore)
 }

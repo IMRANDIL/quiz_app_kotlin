@@ -33,4 +33,5 @@ data class QuestionRequest(
 
     @SerializedName("difficulty")
     val difficulty: String? = "medium" // easy, medium, hard
+
 )
