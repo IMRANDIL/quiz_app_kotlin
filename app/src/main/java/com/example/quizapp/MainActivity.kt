@@ -255,9 +255,19 @@ fun QuizApp(questionList: List<QuestionModel>) {
                     val intent = Intent(context, AllCategoriesActivity::class.java)
                     context.startActivity(intent)
                 },
-                onCategoryClick = {
-                    Log.d("MainActivity", "Starting AllCategoriesActivity")
-                    val intent = Intent(context, AllCategoriesActivity::class.java)
+                onCategoryClick = { category ->
+                    Log.d("AllCategoriesActivity", "Category clicked: ${category.name}")
+
+                    // Start QuestionActivity with the selected category
+                    // This will use the same single player quiz screen
+                    val intent = Intent(context, QuestionActivity::class.java).apply {
+                        // Pass the category name to filter questions
+                        putExtra("category", category.name)
+                        putExtra("categoryId", category.id)
+
+                        // Optional: You can also pass the whole category object if needed
+                        putExtra("categoryObject", category)
+                    }
                     context.startActivity(intent)
                 }
 

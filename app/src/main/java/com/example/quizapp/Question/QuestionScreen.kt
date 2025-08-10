@@ -46,6 +46,7 @@ import kotlinx.coroutines.delay
 fun QuestionScreen(
     questions: List<QuestionModel>,
     categoryName: String? = null, // Add category parameter
+    categoryId: String? = null,
     onFinish: (finalScore: Int) -> Unit = {},
     onBackClick: () -> Unit = {},
 ) {
@@ -95,8 +96,8 @@ fun QuestionScreen(
                 }
                 Spacer(modifier = Modifier.width(width = 16.dp))
                 Text(
-                    text = if (categoryName != null) {
-                        "$categoryName Quiz"
+                    text = if (categoryId != null) {
+                        "$categoryId Quiz"
                     } else {
                         "Single Player"
                     },

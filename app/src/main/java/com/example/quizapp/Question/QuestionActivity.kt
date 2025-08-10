@@ -32,7 +32,7 @@ class QuestionActivity : ComponentActivity() {
 
     private lateinit var repository: QuizRepository
     private var categoryName: String? = null
-
+    private var categoryId: String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.statusBarColor = ContextCompat.getColor(this, R.color.grey)
@@ -42,7 +42,7 @@ class QuestionActivity : ComponentActivity() {
 
         // Get category information from intent
         categoryName = intent.getStringExtra("categoryId")
-        val categoryId = intent.getStringExtra("categoryId")
+        categoryId = intent.getStringExtra("category")
         val categoryObject = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra("categoryObject", Category::class.java)
         } else {
@@ -107,7 +107,7 @@ class QuestionActivity : ComponentActivity() {
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Loading $category questions...",
+                            text = "Loading $categoryId questions...",
                             fontSize = 16.sp,
                             color = colorResource(id = R.color.navy_blue),
                             fontWeight = FontWeight.Medium
@@ -124,7 +124,7 @@ class QuestionActivity : ComponentActivity() {
                     category = category,
                     limit = 50
                 ).onSuccess { questionList ->
-                    Log.d("QuestionActivity", "Loaded ${questionList.size} questions for $category")
+                    Log.d("QuestionActivity", "Loaded ${questionList.size} questions for $categoryId")
 
                     if (questionList.isNotEmpty()) {
                         // Convert API response to QuestionModel
@@ -237,6 +237,7 @@ class QuestionActivity : ComponentActivity() {
                 QuestionScreen(
                     questions = questions,
                     categoryName = categoryName,
+                    categoryId = categoryId,
                     onBackClick = { finish() },
                     onFinish = { finalScore ->
                         val intent = Intent(this@QuestionActivity, ScoreActivity::class.java).apply {
@@ -279,8 +280,8 @@ class QuestionActivity : ComponentActivity() {
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = if (categoryName != null)
-                                "No questions found for $categoryName category"
+                            text = if (categoryId != null)
+                                "No questions found for $categoryId category"
                             else
                                 "No questions available at the moment",
                             fontSize = 14.sp,
@@ -357,8 +358,8 @@ class QuestionActivity : ComponentActivity() {
                             Button(
                                 onClick = {
                                     // Retry loading
-                                    if (categoryName != null) {
-                                        loadQuestionsForCategory(categoryName!!)
+                                    if (categoryId != null) {
+                                        loadQuestionsForCategory(categoryId!!)
                                     } else {
                                         loadAllQuestions()
                                     }
