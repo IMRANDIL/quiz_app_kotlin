@@ -39,6 +39,8 @@ fun MainScreen(
     val scrollState = rememberScrollState()
     val selectedItemId by remember { mutableStateOf(R.id.home) }
     val categories by viewModel.categories.collectAsState()
+    // Assuming `categories` is your list of all categories
+    val randomCategories = categories.shuffled().take(2)
 
     Box(
         modifier = Modifier
@@ -61,7 +63,7 @@ fun MainScreen(
             CategoryHeader(
                 onSeeAllClick = onSeeAllCategoriesClick // Pass the navigation callback
             )
-            CategoryGrid(categories)
+            CategoryGrid(randomCategories)
             Banner()
         }
         BottomNavigationBar(
