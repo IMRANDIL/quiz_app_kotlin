@@ -254,7 +254,13 @@ fun QuizApp(questionList: List<QuestionModel>) {
                     Log.d("MainActivity", "Starting AllCategoriesActivity")
                     val intent = Intent(context, AllCategoriesActivity::class.java)
                     context.startActivity(intent)
+                },
+                onCategoryClick = {
+                    Log.d("MainActivity", "Starting AllCategoriesActivity")
+                    val intent = Intent(context, AllCategoriesActivity::class.java)
+                    context.startActivity(intent)
                 }
+
             )
         }
     }

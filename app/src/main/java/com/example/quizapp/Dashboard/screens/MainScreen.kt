@@ -26,6 +26,7 @@ import com.example.quizapp.Dashboard.components.GameMadeButtons
 import com.example.quizapp.Dashboard.components.TopUserSection
 import com.example.quizapp.network.models.CategoryViewModel
 import com.example.quizapp.R
+import com.example.quizapp.network.models.Category
 
 @Composable
 fun MainScreen(
@@ -34,6 +35,7 @@ fun MainScreen(
     onMultiPlayerClick: () -> Unit = {},
     onBoardClick: () -> Unit = {},
     onSeeAllCategoriesClick: () -> Unit = {}, // New parameter for navigation
+    onCategoryClick: (Category) -> Unit = {}, // NEW callback,
     viewModel: CategoryViewModel = viewModel()
 ) {
     val scrollState = rememberScrollState()
@@ -63,7 +65,10 @@ fun MainScreen(
             CategoryHeader(
                 onSeeAllClick = onSeeAllCategoriesClick // Pass the navigation callback
             )
-            CategoryGrid(randomCategories)
+            CategoryGrid(
+                categories = randomCategories,
+                onCategoryClick = onCategoryClick // Pass click handler
+            )
             Banner()
         }
         BottomNavigationBar(
